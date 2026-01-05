@@ -1,65 +1,214 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Home,
+  Users,
+  Lock,
+  Dumbbell,
+} from "lucide-react";
+import { supabase } from "./utils/supabase";
 
-export default function Home() {
+const CLIENT_NAMES = [
+  "Mathieu Dupont",
+  "Chloé Martin",
+  "Lucas Bernard",
+  "Sophie Lemoine",
+  "Didier Renard",
+];
+
+const CLIENT_ID_MAP: { [key: string]: number } = {
+      "Mathieu Dupont": 1,
+      "Chloé Martin": 2,
+      "Lucas Bernard": 3,
+      "Sophie Lemoine": 4,
+      "Didier Renard": 5,
+    };
+
+export default function Page() {
+  const router = useRouter();
+  const [mode, setMode] = useState<"select" | "coach" | "client">("select");
+  const [coachCode, setCoachCode] = useState("");
+  const [selectedClient, setSelectedClient] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSignUp, setIsSignUp] = useState(false);
+
+  // Fonction de connexion avec Supabase
+  const handleSupabaseSignIn = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("fitclub-user-type", "coach");
+          localStorage.setItem("fitclub-logged-in", "true");
+          localStorage.setItem("fitclub-user-id", data.user.id);
+        }
+        router.push("/dashboard");
+      }
+    } catch (error: any) {
+      console.error("Erreur lors de la connexion:", error);
+      alert(error.message || "Erreur lors de la connexion");
+    }
+  };
+
+  // Fonction d'inscription avec Supabase
+  const handleSupabaseSignUp = async () => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+        setIsSignUp(false);
+        setEmail("");
+        setPassword("");
+      }
+    } catch (error: any) {
+      console.error("Erreur lors de l'inscription:", error);
+      alert(error.message || "Erreur lors de l'inscription");
+    }
+  };
+
+  const handleCoachLogin = async () => {
+    try {
+      // Pour l'instant, on garde le système de code simple comme fallback
+      // Vous pouvez utiliser handleSupabaseSignIn() si vous avez configuré les utilisateurs dans Supabase
+      if (coachCode === "COACH") {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("fitclub-user-type", "coach");
+          localStorage.setItem("fitclub-logged-in", "true");
+        }
+        router.push("/dashboard");
+      } else {
+        if (typeof window !== "undefined") {
+          alert("Code incorrect. Le code est : COACH");
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de la connexion coach:", error);
+      router.push("/dashboard");
+    }
+  };
+
+  const handleClientLogin = (clientName: string) => {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("fitclub-user-type", "client");
+        localStorage.setItem("fitclub-client-id", CLIENT_ID_MAP[clientName]?.toString() || "5");
+        localStorage.setItem("fitclub-logged-in", "true");
+      }
+      router.push("/client-portal");
+    } catch (error) {
+      console.error("Erreur lors de la connexion client:", error);
+      router.push("/client-portal");
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+        {/* Logo / Header */}
+        <div className="text-center mb-8">
+          <div className="bg-indigo-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <Dumbbell className="text-indigo-600" size={40} />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-700 mb-2">FitClub</h1>
+          <p className="text-slate-400 text-sm">Application de coaching</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        {mode === "select" && (
+          <div className="space-y-4">
+            <button
+              onClick={() => setMode("coach")}
+              className="w-full bg-indigo-500 text-white rounded-xl px-6 py-4 text-base font-medium hover:bg-indigo-600 transition shadow-lg flex items-center justify-center gap-3 active:scale-95"
+            >
+              <Lock size={24} />
+              Accès Coach
+            </button>
+            <button
+              onClick={() => setMode("client")}
+              className="w-full bg-purple-500 text-white rounded-xl px-6 py-4 text-base font-medium hover:bg-purple-600 transition shadow-lg flex items-center justify-center gap-3 active:scale-95"
+            >
+              <Users size={24} />
+              Accès Client
+            </button>
+            </div>
+        )}
+
+        {mode === "coach" && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Code d'accès
+              </label>
+              <input
+                type="password"
+                value={coachCode}
+                onChange={(e) => setCoachCode(e.target.value)}
+                placeholder="Entrez le code COACH"
+                className="w-full bg-white rounded-xl border border-slate-200 px-4 py-3 text-base text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleCoachLogin();
+                  }
+                }}
+              />
+              </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setMode("select")}
+                className="flex-1 px-6 py-3 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium text-base"
+              >
+                Retour
+              </button>
+              <button
+                onClick={handleCoachLogin}
+                className="flex-1 bg-indigo-500 text-white rounded-xl px-6 py-3 hover:bg-indigo-600 transition shadow-sm font-medium text-base active:scale-95"
+              >
+                Se connecter
+              </button>
+            </div>
+          </div>
+        )}
+
+        {mode === "client" && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-3">
+                Sélectionnez votre nom
+              </label>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {CLIENT_NAMES.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => handleClientLogin(name)}
+                    className="w-full bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl px-4 py-3 text-left text-slate-700 font-medium transition active:scale-95"
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={() => setMode("select")}
+              className="w-full px-6 py-3 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium text-base"
+            >
+              Retour
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
