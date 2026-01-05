@@ -1,11 +1,12 @@
 // Utilité pour stocker les paiements dans localStorage
 export interface Paiement {
-  id: number;
+  id: number | string;
   client: string;
   montant: string;
   date: string;
   status: "Payé" | "En attente" | "Annulé";
   factureId?: number;
+  stripePaymentId?: string;
 }
 
 const STORAGE_KEY_PAIEMENTS = "demos-paiements";

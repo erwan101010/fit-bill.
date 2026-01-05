@@ -335,7 +335,7 @@ function ClientsPageContent() {
                 return (
                   <div
                     key={client.id}
-                    className={`bg-white/80 backdrop-blur-2xl rounded-xl border-2 border-white/40 shadow-2xl p-4 transition-all duration-300 ${
+                    className={`holographic bg-white/80 backdrop-blur-2xl rounded-xl border-2 border-white/40 shadow-2xl p-4 transition-all duration-300 relative ${
                       selectedClient === client.id
                         ? "ring-2 ring-red-600 bg-white/90 scale-105"
                         : "hover:bg-white/90 hover:scale-105 hover:shadow-red-500/20 hover:border-red-500/30"
@@ -344,6 +344,16 @@ function ClientsPageContent() {
                       boxShadow: selectedClient === client.id 
                         ? '0 25px 50px -12px rgba(239, 68, 68, 0.3), 0 0 0 1px rgba(239, 68, 68, 0.1), 0 0 40px rgba(239, 68, 68, 0.2)' 
                         : undefined,
+                    }}
+                    onMouseMove={(e) => {
+                      const card = e.currentTarget;
+                      const rect = card.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const y = e.clientY - rect.top;
+                      const centerX = rect.width / 2;
+                      const centerY = rect.height / 2;
+                      const angle = Math.atan2(y - centerY, x - centerX) * (180 / Math.PI);
+                      card.style.setProperty('--holographic-angle', `${angle}deg`);
                     }}
                   >
                     <div className="flex items-start justify-between">
@@ -355,7 +365,10 @@ function ClientsPageContent() {
                           <div className="font-medium text-slate-700">
                             {client.name}
                           </div>
-                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200">
+                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200 relative" style={{
+                            boxShadow: '0 0 10px rgba(34, 197, 94, 0.5), 0 0 20px rgba(34, 197, 94, 0.3)',
+                            textShadow: '0 0 8px rgba(34, 197, 94, 0.8)',
+                          }}>
                             Client Actif
                           </span>
                           {needsRelance && (

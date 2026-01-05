@@ -1,12 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Users,
-  Lock,
-  Dumbbell,
-  Sparkles,
-} from "lucide-react";
+import { Lock, Dumbbell } from "lucide-react";
+import { supabase } from "./utils/supabase";
 
 export default function Page() {
   const router = useRouter();
@@ -16,90 +12,168 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [coachCode, setCoachCode] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
 
-  // Mode développement : bypasser Supabase
-  const handleDevSignIn = () => {
-    if (typeof window !== "undefined") {
-      const userId = "dev-user-" + Date.now();
-      localStorage.setItem("demos-user-type", mode === "coach" ? "coach" : "client");
-      localStorage.setItem("demos-logged-in", "true");
-      localStorage.setItem("demos-user-id", userId);
-      localStorage.setItem("demos-user-name", name || (mode === "coach" ? "Coach" : "Client"));
-      
-      // Si c'est un client avec un code coach, le lier
+  useEffect(() => {
+    setMounted(true);
+    // Vérifier si l'utilisateur est déjà connecté
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role, user_type")
+          .eq("id", session.user.id)
+          .single();
+        
+        const userRole = profile?.role || profile?.user_type;
+        if (userRole === "coach") {
+          router.push("/dashboard");
+        } else if (userRole === "client") {
+          router.push("/client");
+        }
+      }
+    };
+    checkSession();
+  }, [router]);
+
+  if (!mounted) return null;
+
+  // Connexion avec Supabase
+  const handleSignIn = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        // Si erreur "Email not confirmed", essayer de récupérer la session
+        if (authError.message.includes("Email not confirmed")) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) throw authError;
+        } else {
+          throw authError;
+        }
+      }
+
+      const session = authData?.session || (await supabase.auth.getSession()).data.session;
+      if (!session || !session.user) {
+        throw new Error("Erreur de connexion");
+      }
+
+      // Récupérer le profil avec le rôle
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("user_type, role, full_name")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const userRole = profile.role || profile.user_type;
+
+      // Stocker les infos dans localStorage
+      if (typeof window !== "undefined") {
+        localStorage.setItem("demos-user-id", session.user.id);
+        localStorage.setItem("demos-user-name", profile.full_name || name);
+        localStorage.setItem("demos-user-type", userRole || "client");
+        localStorage.setItem("demos-logged-in", "true");
+      }
+
+      // Rediriger selon le rôle
+      if (userRole === "coach") {
+        router.push("/dashboard");
+      } else {
+        router.push("/client");
+      }
+    } catch (err: any) {
+      setError(err.message || "Erreur de connexion");
+      console.error("Erreur de connexion:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Inscription avec Supabase
+  const handleSignUp = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      if (!authData.user) {
+        throw new Error("Erreur lors de l'inscription");
+      }
+
+      // Créer le profil avec le rôle
+      const userType = mode === "coach" ? "coach" : "client";
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          id: authData.user.id,
+          full_name: name,
+          email: email,
+          user_type: userType,
+          role: userType,
+        });
+
+      if (profileError) throw profileError;
+
+      // Si client avec code coach, lier au coach
       if (mode === "client" && coachCode.trim()) {
         const { linkClientToCoach } = require("./utils/coachStorage");
-        linkClientToCoach(userId, coachCode.trim().toUpperCase());
+        linkClientToCoach(authData.user.id, coachCode.trim().toUpperCase());
       }
-      
-      // Pour les coaches, générer un code coach
-      if (mode === "coach") {
-        const { getOrCreateCoachCode } = require("./utils/coachStorage");
-        const code = getOrCreateCoachCode(userId, name || "Coach", email);
-        localStorage.setItem("demos-coach-code", code);
+
+      // Stocker les infos
+      if (typeof window !== "undefined") {
+        localStorage.setItem("demos-user-id", authData.user.id);
+        localStorage.setItem("demos-user-name", name);
+        localStorage.setItem("demos-user-type", userType);
+        localStorage.setItem("demos-logged-in", "true");
       }
+
+      alert("Inscription réussie ! Vérifiez votre email pour confirmer votre compte.");
+
+      // Rediriger selon le rôle
+      if (userType === "coach") {
+        router.push("/dashboard");
+      } else {
+        router.push("/client");
+      }
+    } catch (err: any) {
+      setError(err.message || "Erreur lors de l'inscription");
+      console.error("Erreur d'inscription:", err);
+    } finally {
+      setLoading(false);
     }
-    
-    // Vérifier si le client doit faire l'onboarding
-    if (mode === "client") {
-      const { isOnboardingComplete } = require("./utils/clientOnboardingStorage");
-      const userId = localStorage.getItem("demos-user-id");
-      if (userId && !isOnboardingComplete(userId)) {
-        router.push("/client-portal/onboarding" + (coachCode ? `?coach_code=${coachCode.toUpperCase()}` : ""));
-        return;
-      }
-    }
-    
-    router.push(mode === "coach" ? "/dashboard" : "/client-portal");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Mode développement : connexion directe sans vérification
-    if (!isSignUp) {
-      handleDevSignIn();
-      return;
-    }
+    setError("");
 
-    // Pour l'inscription, on garde la logique Supabase (mais on peut aussi bypasser)
     if (isSignUp) {
-      // Mode développement : créer un compte fictif
-      if (typeof window !== "undefined") {
-        const userId = "dev-user-" + Date.now();
-        localStorage.setItem("demos-user-type", mode === "coach" ? "coach" : "client");
-        localStorage.setItem("demos-logged-in", "true");
-        localStorage.setItem("demos-user-id", userId);
-        localStorage.setItem("demos-user-name", name);
-        
-        // Si c'est un client avec un code coach, le lier
-        if (mode === "client" && coachCode.trim()) {
-          const { linkClientToCoach } = require("./utils/coachStorage");
-          linkClientToCoach(userId, coachCode.trim().toUpperCase());
-        }
-        
-        // Pour les coaches, générer un code coach
-        if (mode === "coach") {
-          const { getOrCreateCoachCode } = require("./utils/coachStorage");
-          const code = getOrCreateCoachCode(userId, name, email);
-          localStorage.setItem("demos-coach-code", code);
-        }
-      }
-      alert("Inscription réussie (mode développement) !");
-      
-      // Rediriger vers l'onboarding pour les clients
-      if (mode === "client") {
-        const userId = localStorage.getItem("demos-user-id");
-        if (userId) {
-          const { isOnboardingComplete } = require("./utils/clientOnboardingStorage");
-          if (!isOnboardingComplete(userId)) {
-            router.push("/client-portal/onboarding" + (coachCode ? `?coach_code=${coachCode.toUpperCase()}` : ""));
-            return;
-          }
-        }
-      }
-      
-      handleDevSignIn();
+      await handleSignUp();
+    } else {
+      await handleSignIn();
     }
   };
 
@@ -114,10 +188,7 @@ export default function Page() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
             Demos
           </h1>
-          <p className="text-gray-400 text-sm flex items-center justify-center gap-2">
-            <Sparkles size={14} className="text-red-500" />
-            Application de coaching premium
-          </p>
+          <p className="text-gray-400 text-sm">Application de coaching premium</p>
         </div>
 
         {mode === "select" && (
@@ -133,7 +204,7 @@ export default function Page() {
               onClick={() => setMode("client")}
               className="w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl px-6 py-4 text-base font-medium hover:from-gray-600 hover:to-gray-700 transition-all shadow-xl shadow-gray-900/50 flex items-center justify-center gap-3 active:scale-95 border border-white/10"
             >
-              <Users size={24} />
+              <Lock size={24} />
               Accès Client
             </button>
           </div>
@@ -153,12 +224,19 @@ export default function Page() {
                   setEmail("");
                   setPassword("");
                   setCoachCode("");
+                  setError("");
                 }}
                 className="text-gray-400 hover:text-white text-sm transition"
               >
                 Retour
               </button>
             </div>
+
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-3 text-red-300 text-sm">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -226,27 +304,23 @@ export default function Page() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsSignUp(!isSignUp)}
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setError("");
+                  }}
                   className="flex-1 px-6 py-3 text-gray-300 hover:bg-gray-800/50 rounded-xl transition font-medium text-base border border-white/10 backdrop-blur-sm"
                 >
                   {isSignUp ? "J'ai déjà un compte" : "Créer un compte"}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 hover:from-red-700 hover:to-red-800 transition-all shadow-xl shadow-red-500/30 font-medium text-base active:scale-95 border border-white/10"
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 hover:from-red-700 hover:to-red-800 transition-all shadow-xl shadow-red-500/30 font-medium text-base active:scale-95 border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSignUp ? "S'inscrire" : "Se connecter"}
+                  {loading ? "Chargement..." : isSignUp ? "S'inscrire" : "Se connecter"}
                 </button>
               </div>
             </form>
-
-            {/* Badge mode développement */}
-            <div className="pt-4 border-t border-white/10">
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                <Sparkles size={12} />
-                <span>Mode développement activé</span>
-              </div>
-            </div>
           </div>
         )}
       </div>

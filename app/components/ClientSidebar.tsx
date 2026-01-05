@@ -3,7 +3,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  Calendar,
   TrendingUp,
   MessageCircle,
   LogOut,
@@ -14,28 +13,22 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase";
-import { getClientCoach } from "../utils/coachStorage";
 
 const NAV_ITEMS = [
   {
     label: "Accueil",
     icon: Home,
-    href: "/client-portal",
-  },
-  {
-    label: "Agenda",
-    icon: Calendar,
-    href: "/client-portal/agenda",
+    href: "/client",
   },
   {
     label: "Progression",
     icon: TrendingUp,
-    href: "/client-portal/progression",
+    href: "/client",
   },
   {
     label: "Chat",
     icon: MessageCircle,
-    href: "/client-portal/chat",
+    href: "/client/chat",
   },
 ];
 
@@ -46,15 +39,23 @@ export default function ClientSidebar() {
   const [coach, setCoach] = useState<{ name: string } | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const clientId = localStorage.getItem("demos-user-id");
-      if (clientId) {
-        const coachData = getClientCoach(clientId);
+    const loadCoach = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Récupérer le coach depuis Supabase
+        const { data: coachData } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_type", "coach")
+          .limit(1)
+          .single();
+        
         if (coachData) {
-          setCoach({ name: coachData.name });
+          setCoach({ name: coachData.full_name || "Coach" });
         }
       }
-    }
+    };
+    loadCoach();
   }, []);
 
   const handleLogout = async () => {
@@ -119,7 +120,7 @@ export default function ClientSidebar() {
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             {NAV_ITEMS.map((item) => {
               const IconComponent = item.icon;
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || (item.href === "/client" && pathname.startsWith("/client") && pathname !== "/client/chat");
               return (
                 <Link
                   key={item.href}

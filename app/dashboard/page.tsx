@@ -10,13 +10,13 @@ import {
   Search,
   Command,
   User,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
 import { getTotalPaiements } from "../utils/facturationStorage";
 import { getOrCreateCoachCode } from "../utils/coachStorage";
-import { getAllMessages } from "../utils/chatStorage";
-import { getClientCoach } from "../utils/coachStorage";
+import { supabase } from "../utils/supabase";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showCAModal, setShowCAModal] = useState(false);
   const objectifCA = 5000;
 
   // Raccourci clavier CMD+K ou CTRL+K
@@ -59,67 +60,92 @@ export default function DashboardPage() {
   const maxCA = Math.max(...donneesMensuelles.map(d => d.ca));
 
   useEffect(() => {
-    const initialCA = getTotalPaiements();
-    if (initialCA > 0) {
-      setChiffreAffaires(initialCA);
-    }
-    
-    // Générer ou récupérer le code coach
-    if (typeof window !== "undefined") {
-      const coachId = localStorage.getItem("demos-user-id");
-      const coachName = localStorage.getItem("demos-user-name") || "Coach";
-      const coachEmail = localStorage.getItem("demos-user-email") || "";
-      if (coachId) {
-        const code = getOrCreateCoachCode(coachId, coachName, coachEmail);
-        setCoachCode(code);
+    const loadData = async () => {
+      const initialCA = getTotalPaiements();
+      if (initialCA > 0) {
+        setChiffreAffaires(initialCA);
       }
-
-      // Récupérer les 3 dernières activités
-      const activities: any[] = [];
       
-      // Dernier message reçu
-      const allMessages = getAllMessages();
-      if (allMessages.length > 0) {
-        const lastMessage = allMessages[allMessages.length - 1];
-        if (lastMessage.sender === "client") {
-          activities.push({
-            type: "message",
-            icon: MessageCircle,
-            title: "Nouveau message",
-            description: `Message de client #${lastMessage.clientId}`,
-            time: new Date(lastMessage.timestamp).toLocaleDateString("fr-FR"),
-            color: "blue",
-            href: "/dashboard/messages",
-          });
+      // Générer ou récupérer le code coach
+      if (typeof window !== "undefined") {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const coachId = session.user.id;
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, email")
+            .eq("id", coachId)
+            .single();
+          
+          if (profile) {
+            const code = getOrCreateCoachCode(coachId, profile.full_name || "Coach", profile.email || "");
+            setCoachCode(code);
+          }
+
+          // Récupérer les 3 dernières activités
+          const activities: any[] = [];
+          
+          // Dernier message reçu depuis Supabase
+          const { data: messagesData } = await supabase
+            .from("messages")
+            .select("*")
+            .eq("receiver_id", coachId)
+            .order("created_at", { ascending: false })
+            .limit(1);
+          
+          if (messagesData && messagesData.length > 0) {
+            const lastMessage = messagesData[0];
+            activities.push({
+              type: "message",
+              icon: MessageCircle,
+              title: "Nouveau message",
+              description: "Message reçu",
+              time: new Date(lastMessage.created_at).toLocaleDateString("fr-FR"),
+              color: "blue",
+              href: "/dashboard/chat",
+            });
+          }
+
+          // Nouveau client (depuis Supabase)
+          const { data: clientsData } = await supabase
+            .from("profiles")
+            .select("full_name, created_at")
+            .eq("user_type", "client")
+            .order("created_at", { ascending: false })
+            .limit(1);
+          
+          if (clientsData && clientsData.length > 0) {
+            const newClient = clientsData[0];
+            activities.push({
+              type: "client",
+              icon: UserPlus,
+              title: "Nouveau client",
+              description: `${newClient.full_name || "Client"} a rejoint`,
+              time: new Date(newClient.created_at).toLocaleDateString("fr-FR"),
+              color: "green",
+              href: "/clients",
+            });
+          }
+
+          // Nouveau paiement
+          if (initialCA > 0) {
+            activities.push({
+              type: "paiement",
+              icon: DollarSign,
+              title: "Paiement reçu",
+              description: `${initialCA}€ ce mois`,
+              time: "Aujourd'hui",
+              color: "red",
+              href: "/facturation",
+            });
+          }
+
+          setRecentActivities(activities.slice(0, 3));
         }
       }
+    };
 
-      // Nouveau client (simulé - à remplacer par vraie logique)
-      activities.push({
-        type: "client",
-        icon: UserPlus,
-        title: "Nouveau client",
-        description: "Mathieu Dupont a rejoint",
-        time: "Il y a 2 jours",
-        color: "green",
-        href: "/clients",
-      });
-
-      // Nouveau paiement
-      if (initialCA > 0) {
-        activities.push({
-          type: "paiement",
-          icon: DollarSign,
-          title: "Paiement reçu",
-          description: `${initialCA}€ ce mois`,
-          time: "Aujourd'hui",
-          color: "red",
-          href: "/facturation",
-        });
-      }
-
-      setRecentActivities(activities.slice(0, 3));
-    }
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -186,9 +212,48 @@ export default function DashboardPage() {
                   </button>
                 </div>
                 {searchQuery && (
-                  <div className="mt-4 space-y-2">
-                    <div className="text-xs text-gray-500 px-2">Résultats pour "{searchQuery}"</div>
-                    <div className="text-sm text-gray-400 px-2">Fonctionnalité de recherche en cours de développement...</div>
+                  <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
+                    <div className="text-xs text-gray-500 px-2 mb-3">Résultats pour "{searchQuery}"</div>
+                    {/* Clients */}
+                    <div className="space-y-2">
+                      {[
+                        { id: 1, name: "Mathieu Dupont", email: "mathieu.dupont@email.com" },
+                        { id: 2, name: "Chloé Martin", email: "chloe.martin@email.com" },
+                        { id: 3, name: "Lucas Bernard", email: "lucas.bernard@email.com" },
+                        { id: 4, name: "Sophie Lemoine", email: "sophie.lemoine@email.com" },
+                        { id: 5, name: "Didier Renard", email: "didier.renard@email.com" },
+                      ]
+                        .filter(client => 
+                          client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          client.email.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map(client => (
+                          <button
+                            key={client.id}
+                            onClick={() => {
+                              router.push(`/clients?client=${client.id}`);
+                              setShowSearch(false);
+                              setSearchQuery("");
+                            }}
+                            className="w-full text-left p-3 bg-white/50 hover:bg-white/80 rounded-xl border border-white/40 hover:border-red-500/50 transition-all hover:shadow-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="bg-red-600/20 p-2 rounded-lg border border-red-500/30">
+                                <User size={18} className="text-red-500" strokeWidth={1.5} />
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-800">{client.name}</p>
+                                <p className="text-xs text-gray-500">{client.email}</p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                    </div>
+                    {/* Factures */}
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="text-xs text-gray-500 px-2 mb-2">Factures</div>
+                      <div className="text-sm text-gray-400 px-2">Recherche de factures en cours de développement...</div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -202,9 +267,13 @@ export default function DashboardPage() {
           </div>
 
           {/* Carte principale avec Border Beam */}
-          <div className="relative bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 border-2 border-white/40 overflow-hidden card-tilt" style={{
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(239, 68, 68, 0.1), 0 0 40px rgba(239, 68, 68, 0.1)',
-          }}>
+          <div 
+            onClick={() => setShowCAModal(true)}
+            className="relative bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 border-2 border-white/40 overflow-hidden card-tilt cursor-pointer hover:scale-[1.02] transition-transform duration-300" 
+            style={{
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(239, 68, 68, 0.1), 0 0 40px rgba(239, 68, 68, 0.1)',
+            }}
+          >
             {/* Background Glow */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/20 via-transparent to-red-500/20 opacity-50 -z-10 blur-2xl"></div>
             {/* Border Beam effect */}
@@ -377,6 +446,78 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Modale 3D pour le graphique CA */}
+      {showCAModal && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+          onClick={() => setShowCAModal(false)}
+        >
+          <div 
+            className="bg-white/95 backdrop-blur-3xl rounded-3xl shadow-2xl border-2 border-white/40 p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto modal-zoom-in"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              boxShadow: '0 0 60px rgba(239, 68, 68, 0.5), 0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <TrendingUp className="text-red-600" size={32} />
+                Détails du Chiffre d'Affaires
+              </h2>
+              <button
+                onClick={() => setShowCAModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Graphique agrandi */}
+              <div className="bg-white/50 backdrop-blur-xl rounded-2xl p-6 border border-white/40">
+                <div className="flex items-end justify-between gap-4 h-80">
+                  {donneesMensuelles.map((data, index) => (
+                    <div key={index} className="flex-1 flex flex-col items-center gap-3">
+                      <div className="relative w-full h-72 flex items-end">
+                        <div
+                          className="w-full bg-gradient-to-t from-red-600 to-red-700 rounded-t-xl transition-all hover:from-red-700 hover:to-red-800 shadow-xl shadow-red-500/30 border border-white/20"
+                          style={{ height: `${(data.ca / maxCA) * 100}%` }}
+                          title={`${data.mois}: ${data.ca}€`}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700">{data.mois}</span>
+                      <span className="text-xs text-gray-600 font-medium">{data.ca}€</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Statistiques détaillées */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+                  <p className="text-sm text-red-700 font-medium mb-1">Mois actuel</p>
+                  <p className="text-3xl font-bold text-red-800">{caMoisActuel}€</p>
+                </div>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                  <p className="text-sm text-gray-700 font-medium mb-1">Mois précédent</p>
+                  <p className="text-3xl font-bold text-gray-800">{caMoisPrecedent}€</p>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                  <p className="text-sm text-green-700 font-medium mb-1">Évolution</p>
+                  <p className="text-3xl font-bold text-green-800">
+                    {evolutionCA >= 0 ? '+' : ''}{evolutionCA.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                  <p className="text-sm text-blue-700 font-medium mb-1">Objectif mensuel</p>
+                  <p className="text-3xl font-bold text-blue-800">{objectifCA}€</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
