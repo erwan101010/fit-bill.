@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   CheckCircle2,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -144,8 +145,15 @@ export default function Sidebar() {
             })}
           </nav>
 
-          {/* Logout button */}
+          {/* Basculer Vue Client */}
           <div className="p-4 border-t border-white/10">
+            <Link
+              href="/client"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-red-600/20 to-red-700/20 text-red-300 hover:from-red-600/30 hover:to-red-700/30 hover:text-white transition-all border border-red-500/30 hover:border-red-500/50 group mb-2"
+            >
+              <User size={20} className="text-red-400 group-hover:text-white transition-colors" strokeWidth={1.5} />
+              <span className="font-medium">BASCULER VUE CLIENT</span>
+            </Link>
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all border border-transparent hover:border-white/5 group"

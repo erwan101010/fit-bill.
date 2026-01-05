@@ -26,6 +26,7 @@ const mockClients = [
 
 export default function DashboardMessagesPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -35,13 +36,21 @@ export default function DashboardMessagesPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && typeof window !== "undefined") {
       const userId = localStorage.getItem("demos-user-id");
       if (!userId) {
         router.push("/");
       }
     }
-  }, [router]);
+  }, [router, mounted]);
+
+  if (!mounted) {
+    return null;
+  }
 
   useEffect(() => {
     if (selectedClientId) {
@@ -389,4 +398,3 @@ export default function DashboardMessagesPage() {
     </div>
   );
 }
-

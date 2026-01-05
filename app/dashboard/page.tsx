@@ -9,6 +9,7 @@ import {
   DollarSign,
   Search,
   Command,
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
@@ -204,6 +205,8 @@ export default function DashboardPage() {
           <div className="relative bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 border-2 border-white/40 overflow-hidden card-tilt" style={{
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(239, 68, 68, 0.1), 0 0 40px rgba(239, 68, 68, 0.1)',
           }}>
+            {/* Background Glow */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/20 via-transparent to-red-500/20 opacity-50 -z-10 blur-2xl"></div>
             {/* Border Beam effect */}
             <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
               <div className="absolute inset-0 rounded-2xl border-2 border-transparent">
@@ -315,6 +318,20 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Bouton VOIR CÔTÉ CLIENT */}
+          <div className="flex justify-center my-12">
+            <a
+              href="/client"
+              className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl px-12 py-6 text-xl font-bold flex items-center gap-3 hover:from-red-700 hover:to-red-800 transition-all shadow-2xl shadow-red-500/50 border-2 border-white/20 hover:border-white/40 hover:scale-105 active:scale-95"
+              style={{
+                boxShadow: '0 0 50px rgba(239, 68, 68, 0.6), 0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <User size={28} strokeWidth={2} />
+              VOIR CÔTÉ CLIENT
+            </a>
+          </div>
+
           {/* 3 Dernières activités */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-gray-800">Dernières activités</h3>
@@ -334,13 +351,15 @@ export default function DashboardPage() {
                         router.push(activity.href);
                       }
                     }}
-                    className="bg-white/80 backdrop-blur-2xl rounded-xl shadow-2xl p-6 border-2 border-white/40 hover:shadow-red-500/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer active:scale-95 card-tilt" 
+                    className="bg-white/80 backdrop-blur-2xl rounded-xl shadow-2xl p-6 border-2 border-white/40 hover:shadow-red-500/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer active:scale-95 card-tilt relative" 
                     style={{
                       boxShadow: activity.href 
                         ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(239, 68, 68, 0.1), 0 0 30px rgba(239, 68, 68, 0.1)' 
                         : undefined,
                     }}
                   >
+                    {/* Background Glow */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/10 via-transparent to-red-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl"></div>
                     <div className="flex items-start gap-4">
                       <div className={`p-3 rounded-xl ${colorClasses[activity.color as keyof typeof colorClasses]}`}>
                         <IconComponent size={24} />
