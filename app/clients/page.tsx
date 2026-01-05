@@ -315,15 +315,7 @@ function ClientsPageContent() {
                   client.name.toLowerCase().includes(searchQuery.toLowerCase())
                 )
                 .map((client) => {
-                // Vérifier si le client n'a pas ouvert l'app depuis 3 jours
-                const derniereOuverture = getDerniereOuvertureClient(client.id);
-                const joursDepuisOuverture = derniereOuverture
-                  ? Math.floor(
-                      (new Date().getTime() - new Date(derniereOuverture.split("/").reverse().join("-")).getTime()) /
-                        (1000 * 60 * 60 * 24)
-                    )
-                  : 999;
-                const isInactif = joursDepuisOuverture > 3;
+                // Client toujours actif
 
                 // Vérifier si le client n'a pas eu de séance depuis plus de 7 jours
                 const clientRDV = getRendezVousByClient(client.name);
@@ -343,11 +335,16 @@ function ClientsPageContent() {
                 return (
                   <div
                     key={client.id}
-                    className={`bg-white rounded-lg border border-slate-200 shadow-sm p-3 transition ${
+                    className={`bg-white/80 backdrop-blur-2xl rounded-xl border-2 border-white/40 shadow-2xl p-4 transition-all duration-300 ${
                       selectedClient === client.id
-                        ? "ring-2 ring-red-600 bg-gray-50"
-                        : "hover:bg-slate-50"
+                        ? "ring-2 ring-red-600 bg-white/90 scale-105"
+                        : "hover:bg-white/90 hover:scale-105 hover:shadow-red-500/20 hover:border-red-500/30"
                     }`}
+                    style={{
+                      boxShadow: selectedClient === client.id 
+                        ? '0 25px 50px -12px rgba(239, 68, 68, 0.3), 0 0 0 1px rgba(239, 68, 68, 0.1), 0 0 40px rgba(239, 68, 68, 0.2)' 
+                        : undefined,
+                    }}
                   >
                     <div className="flex items-start justify-between">
                       <div
@@ -355,15 +352,13 @@ function ClientsPageContent() {
                         className="flex-1 cursor-pointer"
                       >
                         <div className="flex items-center gap-2">
-                          <div className={`font-medium ${isInactif ? "text-red-600" : "text-slate-700"}`}>
+                          <div className="font-medium text-slate-700">
                             {client.name}
                           </div>
-                          {isInactif && (
-                            <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full border border-red-200">
-                              Inactif ({joursDepuisOuverture}j)
-                            </span>
-                          )}
-                          {needsRelance && !isInactif && (
+                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200">
+                            Client Actif
+                          </span>
+                          {needsRelance && (
                             <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-200">
                               À relancer
                             </span>
@@ -1102,55 +1097,6 @@ function ClientsPageContent() {
             </div>
           )}
 
-          {/* Zone de notes */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
-            <div className="font-semibold text-slate-700 mb-3 flex items-center">
-              <StickyNote className="text-red-600 mr-2" size={20} />
-              Notes
-            </div>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              disabled={selectedClient === null}
-              placeholder={
-                selectedClient === null
-                  ? "Sélectionnez un client pour ajouter des notes..."
-                  : "Ajoutez des notes sur le client sélectionné..."
-              }
-              className="w-full bg-white rounded-lg p-3 text-sm text-slate-700 placeholder-slate-400 border border-slate-200 focus:ring-2 focus:ring-red-600 outline-none resize-none min-h-32 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-
-          {/* Section Évolution */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
-            <div className="font-semibold text-slate-700 mb-4 flex items-center">
-              <TrendingUp className="text-red-600 mr-2" size={20} />
-              Évolution
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Photo Avant */}
-              <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-48 border-2 border-dashed border-slate-300">
-                <ImageIcon className="text-slate-400 mb-2" size={32} />
-                <div className="text-sm font-medium text-slate-600 mb-1">
-                  Avant
-                </div>
-                <div className="text-xs text-slate-400 text-center">
-                  Cliquez pour ajouter une photo
-                </div>
-              </div>
-
-              {/* Photo Après */}
-              <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-48 border-2 border-dashed border-slate-300">
-                <ImageIcon className="text-slate-400 mb-2" size={32} />
-                <div className="text-sm font-medium text-slate-600 mb-1">
-                  Après
-                </div>
-                <div className="text-xs text-slate-400 text-center">
-                  Cliquez pour ajouter une photo
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* Modal pour afficher la photo en grand */}

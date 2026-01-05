@@ -9,10 +9,12 @@ import {
   LogOut,
   Menu,
   X,
+  User,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../utils/supabase";
+import { getClientCoach } from "../utils/coachStorage";
 
 const NAV_ITEMS = [
   {
@@ -41,6 +43,19 @@ export default function ClientSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [coach, setCoach] = useState<{ name: string } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const clientId = localStorage.getItem("demos-user-id");
+      if (clientId) {
+        const coachData = getClientCoach(clientId);
+        if (coachData) {
+          setCoach({ name: coachData.name });
+        }
+      }
+    }
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -80,7 +95,24 @@ export default function ClientSidebar() {
                 Demos
               </h1>
             </div>
+            <div className="flex items-center gap-2 mt-3 ml-11">
+              <span className="text-gray-300 text-sm font-medium">
+                {typeof window !== "undefined" ? localStorage.getItem("demos-user-name") || "Client" : "Client"}
+              </span>
+              <div className="relative">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
+                <div className="absolute inset-0 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-75"></div>
+              </div>
+            </div>
             <p className="text-gray-400 text-xs mt-1 ml-11">Espace Client</p>
+            {coach && (
+              <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-lg px-3 py-2">
+                <User className="text-red-400" size={14} />
+                <span className="text-gray-300">
+                  Coach: <span className="text-white font-medium">{coach.name}</span>
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Navigation */}

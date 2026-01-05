@@ -14,16 +14,42 @@ export default function Page() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [coachCode, setCoachCode] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
   // Mode développement : bypasser Supabase
   const handleDevSignIn = () => {
     if (typeof window !== "undefined") {
+      const userId = "dev-user-" + Date.now();
       localStorage.setItem("demos-user-type", mode === "coach" ? "coach" : "client");
       localStorage.setItem("demos-logged-in", "true");
-      localStorage.setItem("demos-user-id", "dev-user-" + Date.now());
+      localStorage.setItem("demos-user-id", userId);
       localStorage.setItem("demos-user-name", name || (mode === "coach" ? "Coach" : "Client"));
+      
+      // Si c'est un client avec un code coach, le lier
+      if (mode === "client" && coachCode.trim()) {
+        const { linkClientToCoach } = require("./utils/coachStorage");
+        linkClientToCoach(userId, coachCode.trim().toUpperCase());
+      }
+      
+      // Pour les coaches, générer un code coach
+      if (mode === "coach") {
+        const { getOrCreateCoachCode } = require("./utils/coachStorage");
+        const code = getOrCreateCoachCode(userId, name || "Coach", email);
+        localStorage.setItem("demos-coach-code", code);
+      }
     }
+    
+    // Vérifier si le client doit faire l'onboarding
+    if (mode === "client") {
+      const { isOnboardingComplete } = require("./utils/clientOnboardingStorage");
+      const userId = localStorage.getItem("demos-user-id");
+      if (userId && !isOnboardingComplete(userId)) {
+        router.push("/client-portal/onboarding" + (coachCode ? `?coach_code=${coachCode.toUpperCase()}` : ""));
+        return;
+      }
+    }
+    
     router.push(mode === "coach" ? "/dashboard" : "/client-portal");
   };
 
@@ -40,12 +66,39 @@ export default function Page() {
     if (isSignUp) {
       // Mode développement : créer un compte fictif
       if (typeof window !== "undefined") {
+        const userId = "dev-user-" + Date.now();
         localStorage.setItem("demos-user-type", mode === "coach" ? "coach" : "client");
         localStorage.setItem("demos-logged-in", "true");
-        localStorage.setItem("demos-user-id", "dev-user-" + Date.now());
+        localStorage.setItem("demos-user-id", userId);
         localStorage.setItem("demos-user-name", name);
+        
+        // Si c'est un client avec un code coach, le lier
+        if (mode === "client" && coachCode.trim()) {
+          const { linkClientToCoach } = require("./utils/coachStorage");
+          linkClientToCoach(userId, coachCode.trim().toUpperCase());
+        }
+        
+        // Pour les coaches, générer un code coach
+        if (mode === "coach") {
+          const { getOrCreateCoachCode } = require("./utils/coachStorage");
+          const code = getOrCreateCoachCode(userId, name, email);
+          localStorage.setItem("demos-coach-code", code);
+        }
       }
       alert("Inscription réussie (mode développement) !");
+      
+      // Rediriger vers l'onboarding pour les clients
+      if (mode === "client") {
+        const userId = localStorage.getItem("demos-user-id");
+        if (userId) {
+          const { isOnboardingComplete } = require("./utils/clientOnboardingStorage");
+          if (!isOnboardingComplete(userId)) {
+            router.push("/client-portal/onboarding" + (coachCode ? `?coach_code=${coachCode.toUpperCase()}` : ""));
+            return;
+          }
+        }
+      }
+      
       handleDevSignIn();
     }
   };
@@ -99,6 +152,7 @@ export default function Page() {
                   setName("");
                   setEmail("");
                   setPassword("");
+                  setCoachCode("");
                 }}
                 className="text-gray-400 hover:text-white text-sm transition"
               >
@@ -148,6 +202,26 @@ export default function Page() {
                   required
                 />
               </div>
+
+              {/* Code Coach (uniquement pour les clients en inscription) */}
+              {mode === "client" && isSignUp && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Code Coach (optionnel)
+                  </label>
+                  <input
+                    type="text"
+                    value={coachCode}
+                    onChange={(e) => setCoachCode(e.target.value.toUpperCase())}
+                    placeholder="Ex: ABC123"
+                    maxLength={6}
+                    className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 outline-none transition-all shadow-lg uppercase"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Si vous avez reçu un code de votre coach, entrez-le ici
+                  </p>
+                </div>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <button

@@ -8,11 +8,13 @@ import {
   Calendar,
 } from "lucide-react";
 import Link from "next/link";
+import ClientSidebar from "../../components/ClientSidebar";
 import { getSeancesCompletees, SeanceCompletee } from "../../utils/seanceStorage";
+import { getOnboardingData } from "../../utils/clientOnboardingStorage";
 
 export default function ClientProgressionPage() {
-  const clientId = 5; // En production, cela viendrait de l'authentification
-  const clientName = "Didier Renard";
+  const [clientId, setClientId] = useState<string>("");
+  const [clientName, setClientName] = useState("");
   const [poidsActuel, setPoidsActuel] = useState<number | "">(90);
   const [poidsCible, setPoidsCible] = useState(85);
   const [taille, setTaille] = useState<number | "">("");
@@ -36,22 +38,46 @@ export default function ClientProgressionPage() {
   const [seancesCompletees, setSeancesCompletees] = useState<SeanceCompletee[]>([]);
 
   useEffect(() => {
-    // Charger les données depuis localStorage
-    const savedPoids = localStorage.getItem(`client-poids-${clientId}`);
-    const savedTaille = localStorage.getItem(`client-taille-${clientId}`);
-    const savedMensurations = localStorage.getItem(`client-mensurations-${clientId}`);
-    const savedHistorique = localStorage.getItem(`client-historique-mensurations-${clientId}`);
+    if (typeof window === "undefined") return;
+    
+    const id = localStorage.getItem("demos-user-id");
+    const name = localStorage.getItem("demos-user-name") || "Client";
+    if (id) {
+      setClientId(id);
+      setClientName(name);
+      
+      // Charger les données d'onboarding
+      const onboardingData = getOnboardingData(id);
+      if (onboardingData) {
+        setPoidsActuel(onboardingData.poidsActuel);
+        setTaille(onboardingData.taille);
+        // Calculer le poids cible basé sur l'objectif
+        if (onboardingData.objectif === "Sèche") {
+          setPoidsCible(onboardingData.poidsActuel - 5);
+        } else if (onboardingData.objectif === "Prise de masse") {
+          setPoidsCible(onboardingData.poidsActuel + 5);
+        } else {
+          setPoidsCible(onboardingData.poidsActuel);
+        }
+      }
+      
+      // Charger les données depuis localStorage
+      const savedPoids = localStorage.getItem(`client-poids-${id}`);
+      const savedTaille = localStorage.getItem(`client-taille-${id}`);
+      const savedMensurations = localStorage.getItem(`client-mensurations-${id}`);
+      const savedHistorique = localStorage.getItem(`client-historique-mensurations-${id}`);
 
-    if (savedPoids) setPoidsActuel(parseFloat(savedPoids));
-    if (savedTaille) setTaille(parseFloat(savedTaille));
-    if (savedMensurations) setMensurations(JSON.parse(savedMensurations));
-    if (savedHistorique) setHistoriqueMensurations(JSON.parse(savedHistorique));
+      if (savedPoids) setPoidsActuel(parseFloat(savedPoids));
+      if (savedTaille) setTaille(parseFloat(savedTaille));
+      if (savedMensurations) setMensurations(JSON.parse(savedMensurations));
+      if (savedHistorique) setHistoriqueMensurations(JSON.parse(savedHistorique));
 
-    // Charger les séances complétées
-    const allSeances = getSeancesCompletees();
-    const clientSeances = allSeances.filter((s: SeanceCompletee) => s.clientId === clientId);
-    setSeancesCompletees(clientSeances);
-  }, [clientId]);
+      // Charger les séances complétées
+      const allSeances = getSeancesCompletees();
+      const clientSeances = allSeances.filter((s: SeanceCompletee) => s.clientId === parseInt(id) || s.clientId.toString() === id);
+      setSeancesCompletees(clientSeances);
+    }
+  }, []);
 
   const progressionPourcentage =
     typeof poidsActuel === "number" && poidsCible
@@ -74,70 +100,60 @@ export default function ClientProgressionPage() {
   }).length;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 shadow-lg">
-        <div className="flex items-center justify-between max-w-xl mx-auto w-full">
-          <Link
-            href="/client-portal"
-            className="bg-white/20 hover:bg-white/30 rounded-lg px-4 py-2 transition flex items-center gap-2"
-          >
-            <ArrowLeft size={18} />
-            Retour
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">Ma progression</h1>
-            <p className="text-white/90 text-sm mt-1">Suivez vos résultats</p>
+    <div className="min-h-screen bg-gray-50 flex">
+      <ClientSidebar />
+      
+      <main className="flex-1 lg:ml-64 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Ma progression</h1>
+            <p className="text-gray-500 mt-1">Suivez vos résultats</p>
           </div>
-          <div className="w-20"></div> {/* Spacer for centering */}
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="flex-1 px-4 py-6 pb-8 max-w-xl mx-auto w-full">
-        <section className="space-y-6">
+          <section className="space-y-6">
           {/* Statistiques rapides */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm p-6 border-l-4 border-red-600">
               <div className="flex items-center gap-2 mb-2">
                 <Activity className="text-red-600" size={20} />
-                <span className="text-sm text-slate-600">Séances totales</span>
+                <span className="text-sm text-gray-600">Séances totales</span>
               </div>
-              <div className="text-2xl font-bold text-slate-700">{seancesCount}</div>
+              <div className="text-2xl font-bold text-gray-800">{seancesCount}</div>
             </div>
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm p-6 border-l-4 border-gray-600">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="text-red-600" size={20} />
-                <span className="text-sm text-slate-600">Cette semaine</span>
+                <span className="text-sm text-gray-600">Cette semaine</span>
               </div>
-              <div className="text-2xl font-bold text-slate-700">{seancesCetteSemaine}</div>
+              <div className="text-2xl font-bold text-gray-800">{seancesCetteSemaine}</div>
             </div>
           </div>
 
           {/* Progression du poids */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-slate-700 flex items-center">
-                <Target className="text-red-600 mr-2" size={20} />
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <Target className="text-red-600" size={24} />
                 Progression du poids
               </h2>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <div className="text-sm text-slate-600">Poids actuel</div>
-                  <div className="text-2xl font-bold text-slate-700">
+                  <div className="text-sm text-gray-600">Poids actuel</div>
+                  <div className="text-2xl font-bold text-gray-800">
                     {typeof poidsActuel === "number" ? `${poidsActuel} kg` : "Non défini"}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-slate-600">Objectif</div>
+                  <div className="text-sm text-gray-600">Objectif</div>
                   <div className="text-2xl font-bold text-red-600">{poidsCible} kg</div>
                 </div>
               </div>
               {typeof poidsActuel === "number" && (
                 <>
-                  <div className="w-full bg-slate-200 rounded-full h-4 overflow-hidden">
+                  <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-red-600 to-red-700 rounded-full transition-all"
                       style={{
@@ -145,8 +161,8 @@ export default function ClientProgressionPage() {
                       }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-xs text-slate-400">
-                    <span>Départ: 95 kg</span>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Départ: {typeof poidsActuel === "number" ? poidsActuel : 95} kg</span>
                     <span>{Math.round(progressionPourcentage)}% vers l'objectif</span>
                   </div>
                 </>
@@ -156,9 +172,9 @@ export default function ClientProgressionPage() {
 
           {/* Mensurations */}
           {historiqueMensurations.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 className="font-semibold text-slate-700 mb-4 flex items-center">
-                <TrendingUp className="text-red-600 mr-2" size={20} />
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <TrendingUp className="text-red-600" size={24} />
                 Mensurations
               </h2>
               <div className="space-y-3">
@@ -208,16 +224,16 @@ export default function ClientProgressionPage() {
 
           {/* Séances récentes */}
           {seancesCompletees.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h2 className="font-semibold text-slate-700 mb-4 flex items-center">
-                <Activity className="text-red-600 mr-2" size={20} />
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Activity className="text-red-600" size={24} />
                 Séances récentes
               </h2>
               <div className="space-y-2">
                 {seancesCompletees.slice(-5).reverse().map((seance, idx) => (
                   <div
                     key={idx}
-                    className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between"
+                    className="bg-gradient-to-br from-gray-50 to-white border border-white/20 rounded-xl p-3 flex items-center justify-between backdrop-blur-sm"
                   >
                     <div>
                       <div className="text-sm font-medium text-slate-700">{seance.date}</div>
@@ -239,8 +255,8 @@ export default function ClientProgressionPage() {
 
           {/* Message si aucune donnée */}
           {seancesCompletees.length === 0 && typeof poidsActuel !== "number" && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
-              <TrendingUp className="text-slate-300 mx-auto mb-4" size={48} />
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm p-12 text-center">
+              <TrendingUp className="text-gray-300 mx-auto mb-4" size={48} />
               <div className="text-slate-400 text-sm mb-2">
                 Aucune donnée de progression
               </div>
@@ -249,8 +265,9 @@ export default function ClientProgressionPage() {
               </div>
             </div>
           )}
-        </section>
-      </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

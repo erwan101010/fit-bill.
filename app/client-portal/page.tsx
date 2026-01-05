@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Calendar,
   Activity,
@@ -13,16 +14,47 @@ import Link from "next/link";
 import ClientSidebar from "../components/ClientSidebar";
 import { getRendezVousByClient } from "../utils/storage";
 import { updateDerniereOuvertureClient } from "../utils/seanceStorage";
+import { isOnboardingComplete, getOnboardingData } from "../utils/clientOnboardingStorage";
 
 export default function ClientPortalPage() {
-  const [clientName] = useState("Didier Renard");
+  const router = useRouter();
+  const [clientName, setClientName] = useState("");
   const [todayRDV, setTodayRDV] = useState<any[]>([]);
   const [poidsActuel, setPoidsActuel] = useState(90);
   const [poidsCible, setPoidsCible] = useState(85);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const clientId = localStorage.getItem("demos-user-id");
+    const userName = localStorage.getItem("demos-user-name") || "Client";
+    setClientName(userName);
+    
+    // Vérifier si l'onboarding est complété
+    if (clientId && !isOnboardingComplete(clientId)) {
+      router.push("/client-portal/onboarding");
+      return;
+    }
+    
+    // Charger les données d'onboarding
+    if (clientId) {
+      const onboardingData = getOnboardingData(clientId);
+      if (onboardingData) {
+        setPoidsActuel(onboardingData.poidsActuel);
+        // Calculer le poids cible basé sur l'objectif
+        if (onboardingData.objectif === "Sèche") {
+          setPoidsCible(onboardingData.poidsActuel - 5);
+        } else if (onboardingData.objectif === "Prise de masse") {
+          setPoidsCible(onboardingData.poidsActuel + 5);
+        } else {
+          setPoidsCible(onboardingData.poidsActuel);
+        }
+      }
+    }
+    
     updateDerniereOuvertureClient(5);
-    const allRDV = getRendezVousByClient(clientName);
+    const allRDV = getRendezVousByClient(userName);
     const today = new Date();
     const todayStr = today.toLocaleDateString("fr-FR");
     const rdvToday = allRDV.filter((rdv) => rdv.date === todayStr);
@@ -32,7 +64,17 @@ export default function ClientPortalPage() {
     if (savedPoids) {
       setPoidsActuel(parseFloat(savedPoids));
     }
-  }, [clientName]);
+    
+    setLoading(false);
+  }, [router]);
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Chargement...</div>
+      </div>
+    );
+  }
 
   const progressionPourcentage = ((poidsActuel - 95) / (poidsCible - 95)) * 100;
 

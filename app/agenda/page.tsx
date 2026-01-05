@@ -278,7 +278,7 @@ function AgendaPage() {
         <div className="max-w-7xl mx-auto">
         <section className="space-y-6">
           {/* Header avec bouton Ajouter */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 mb-4 flex items-center justify-between">
+          <div className="bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl p-5 mb-4 flex items-center justify-between hover:shadow-red-500/20 hover:-translate-y-1 transition-all duration-300 card-tilt">
             <div>
               <div className="font-semibold text-slate-700 mb-1 flex items-center">
                 <Calendar className="text-red-600 mr-2" size={24} />
@@ -287,7 +287,7 @@ function AgendaPage() {
             </div>
             <button
               onClick={() => setShowModal(true)}
-              className="bg-red-600 text-white rounded-xl px-6 py-3 text-base font-medium flex items-center gap-2 hover:bg-red-700 transition shadow-sm"
+              className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 text-base font-medium flex items-center gap-2 hover:from-red-700 hover:to-red-800 transition-all shadow-xl shadow-red-500/30 border border-white/10 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95"
             >
               <Plus size={18} />
               <span className="text-sm font-medium">Ajouter un créneau</span>
@@ -295,7 +295,7 @@ function AgendaPage() {
           </div>
 
           {/* Calendrier mensuel */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 mb-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl p-5 mb-4 hover:shadow-red-500/20 hover:-translate-y-1 transition-all duration-300 card-tilt">
             {/* Navigation mois et année */}
             <div className="flex flex-col gap-4 mb-4">
               <div className="flex items-center justify-center gap-3">
@@ -372,12 +372,12 @@ function AgendaPage() {
                   <button
                     key={date.getTime()}
                     onClick={() => setSelectedDate(date)}
-                    className={`aspect-square rounded-lg p-1 flex flex-col items-center justify-center transition ${
+                    className={`aspect-square rounded-lg p-1 flex flex-col items-center justify-center transition-all duration-200 active:scale-95 hover:shadow-lg hover:-translate-y-0.5 ${
                       isToday(date)
-                        ? "bg-gray-100 border border-gray-300 text-red-700 font-semibold"
+                        ? "bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-500 text-red-700 font-semibold shadow-md shadow-red-500/20"
                         : isSelected
-                        ? "bg-gray-50 border border-gray-200 text-slate-700"
-                        : "hover:bg-slate-50 text-slate-700 border border-transparent"
+                        ? "bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 text-slate-700 shadow-md"
+                        : "hover:bg-slate-50 text-slate-700 border border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <span className="text-sm">{date.getDate()}</span>
@@ -401,7 +401,7 @@ function AgendaPage() {
 
           {/* Rendez-vous du jour sélectionné */}
           {selectedDate && (
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+            <div className="bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 shadow-2xl p-5 hover:shadow-red-500/20 hover:-translate-y-1 transition-all duration-300 card-tilt">
               <div className="font-semibold text-slate-700 mb-3 flex items-center">
                 <Clock className="text-red-600 mr-2" size={20} />
                 Séances du {selectedDate.toLocaleDateString("fr-FR", {
@@ -423,7 +423,7 @@ function AgendaPage() {
                     return (
                       <div
                         key={rdv.id}
-                        className={`${bgColor} rounded-lg p-3 flex items-start justify-between`}
+                        className={`${bgColor} rounded-lg p-3 flex items-start justify-between hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 active:scale-95 cursor-pointer`}
                       >
                         <div className="flex items-start gap-3 flex-1">
                           {rdv.typeLieu === "salle" ? (

@@ -41,3 +41,141 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Border Beam animations */
+@keyframes border-beam-top {
+  0%, 100% { left: 0%; opacity: 0; }
+  50% { left: 50%; opacity: 1; }
+}
+
+@keyframes border-beam-right {
+  0%, 100% { top: 0%; opacity: 0; }
+  50% { top: 50%; opacity: 1; }
+}
+
+@keyframes border-beam-bottom {
+  0%, 100% { left: 100%; opacity: 0; }
+  50% { left: 50%; opacity: 1; }
+}
+
+@keyframes border-beam-left {
+  0%, 100% { top: 100%; opacity: 0; }
+  50% { top: 50%; opacity: 1; }
+}
+
+/* Float and rotate animation for triangle */
+@keyframes float-rotate {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(90deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(270deg);
+  }
+}
+
+/* Page transition */
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.page-transition {
+  animation: fade-slide-in 0.3s ease-out;
+}
+
+
+/* Message Pop-in Animation */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.message-pop-in {
+  animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Status Glow Effects */
+.status-glow-green {
+  animation: glow-green 2s ease-in-out infinite alternate;
+}
+
+.status-glow-orange {
+  animation: glow-orange 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-green {
+  from {
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.8), 0 0 20px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(34, 197, 94, 1), 0 0 30px rgba(34, 197, 94, 0.7);
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.6);
+  }
+}
+
+@keyframes glow-orange {
+  from {
+    text-shadow: 0 0 10px rgba(249, 115, 22, 0.8), 0 0 20px rgba(249, 115, 22, 0.5);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(249, 115, 22, 1), 0 0 30px rgba(249, 115, 22, 0.7);
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.6);
+  }
+}
+
+/* Modal 3D Zoom Animation */
+@keyframes modal-zoom-in {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(10deg) scale(0.8) translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0deg) scale(1) translateY(0);
+  }
+}
+
+.modal-zoom-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.modal-content-3d {
+  transform-style: preserve-3d;
+}
+
+.modal-content-3d:hover {
+  transform: perspective(1000px) rotateX(-2deg) scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+/* Card Tilt Enhanced */
+.card-tilt {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-tilt:hover {
+  transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) translateY(-8px) scale(1.02);
+}

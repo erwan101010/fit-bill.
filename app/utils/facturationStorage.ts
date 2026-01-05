@@ -4,7 +4,8 @@ export interface Paiement {
   client: string;
   montant: string;
   date: string;
-  status: "Payé";
+  status: "Payé" | "En attente" | "Annulé";
+  factureId?: number;
 }
 
 const STORAGE_KEY_PAIEMENTS = "demos-paiements";
