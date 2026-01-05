@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import Sidebar from "../components/Sidebar";
 import { getRendezVousByClient, RendezVous } from "../utils/storage";
 import { getExercices, Exercice } from "../utils/exercicesStorage";
 import { getProgrammeClient, saveProgrammeClient, ProgrammeClient, JourProgramme } from "../utils/programmeStorage";
@@ -271,40 +272,40 @@ function ClientsPageContent() {
   }, [notes, selectedClient]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between">
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
       {/* Main Content */}
-      <div className="flex-1 px-4 py-6 pb-24 max-w-xl mx-auto w-full">
-        <section className="space-y-6">
+      <main className="flex-1 lg:ml-64 p-6">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 mb-4">
-            <div className="font-semibold text-slate-700 mb-1 flex items-center">
-              <Users className="text-red-600 mr-2" size={24} />
-              Gestion des clients
-            </div>
-            <div className="text-sm text-slate-400">
-              {mockClients.length} client{mockClients.length > 1 ? "s" : ""}
-            </div>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">Gestion des clients</h1>
+            <p className="text-gray-500 mt-1">
+              {mockClients.length} client{mockClients.length > 1 ? "s" : ""} au total
+            </p>
           </div>
 
+          <section className="space-y-6">
+
           {/* Barre de recherche */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 mb-4">
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Rechercher un client par nom..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white rounded-lg border border-slate-200 px-4 py-2.5 pl-10 text-sm text-slate-700 focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none"
+                className="w-full bg-white rounded-lg border border-gray-200 px-4 py-2.5 pl-10 text-sm text-gray-700 focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none"
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             </div>
           </div>
 
           {/* Liste des clients */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
-            <div className="font-semibold text-slate-700 mb-3 flex items-center justify-between">
-              <span>Liste des clients</span>
-              <button className="text-red-600 hover:text-red-600">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="font-semibold text-gray-800 mb-4 flex items-center justify-between">
+              <span className="text-xl">Liste des clients</span>
+              <button className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition">
                 <Plus size={20} />
               </button>
             </div>
@@ -1151,55 +1152,31 @@ function ClientsPageContent() {
             </div>
           </div>
         </section>
-      </div>
 
-      {/* Modal pour afficher la photo en grand */}
-      {photoEnGrand && (
-        <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4"
-          onClick={() => setPhotoEnGrand(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh] w-full">
-            <button
-              onClick={() => setPhotoEnGrand(null)}
-              className="absolute top-4 right-4 bg-white/90 hover:bg-white text-slate-700 rounded-full p-2 shadow-lg transition z-10"
-            >
-              <X size={24} />
-            </button>
-            <img
-              src={photoEnGrand}
-              alt="Photo en grand"
-              className="w-full h-auto rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
+        {/* Modal pour afficher la photo en grand */}
+        {photoEnGrand && (
+          <div
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[10001] p-4"
+            onClick={() => setPhotoEnGrand(null)}
+          >
+            <div className="relative max-w-4xl max-h-[90vh] w-full">
+              <button
+                onClick={() => setPhotoEnGrand(null)}
+                className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-700 rounded-full p-2 shadow-lg transition z-10"
+              >
+                <X size={24} />
+              </button>
+              <img
+                src={photoEnGrand}
+                alt="Photo en grand"
+                className="w-full h-auto rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
+        )}
         </div>
-      )}
-
-      {/* Bottom Navigation (mobile) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t z-[9999] max-w-xl mx-auto">
-        <ul className="flex justify-around px-2 py-3">
-          {NAV_ITEMS.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  className={`flex flex-col items-center justify-center px-4 py-2 rounded-xl transition min-w-[60px] active:scale-95 ${
-                    isActive
-                      ? "text-red-600 bg-gray-50"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-                >
-                  <IconComponent size={24} />
-                  <span className="text-xs mt-1 font-medium">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      </main>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Sidebar from "../components/Sidebar";
 
 interface Exercice {
   id: number;
@@ -118,9 +119,11 @@ export default function BibliothequePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between">
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
       {/* Main Content */}
-      <div className="flex-1 px-4 py-6 pb-24 max-w-xl mx-auto w-full">
+      <main className="flex-1 lg:ml-64 p-6">
+        <div className="max-w-7xl mx-auto">
         <section className="space-y-6">
           {/* Header */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-4">
@@ -198,32 +201,8 @@ export default function BibliothequePage() {
             )}
           </div>
         </section>
-      </div>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t z-[9999] max-w-xl mx-auto">
-        <ul className="flex justify-around px-2 py-3">
-          {NAV_ITEMS.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  className={`flex flex-col items-center justify-center px-4 py-2 rounded-xl transition min-w-[60px] ${
-                    isActive
-                      ? "text-red-600 bg-gray-50"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-                >
-                  <IconComponent size={24} />
-                  <span className="text-xs mt-1 font-medium">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+        </div>
+      </main>
 
       {/* Modal Ajouter/Modifier */}
       {showModal && (

@@ -6,14 +6,10 @@ import {
   Clock,
   CheckCircle2,
   Download,
-  Home,
-  Calendar,
-  Users,
-  BookOpen,
   CreditCard,
+  Plus,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Sidebar from "../components/Sidebar";
 import { getPaiements, addPaiement, savePaiements } from "../utils/facturationStorage";
 
 interface Facture {
@@ -65,47 +61,22 @@ const mockFacturesEnAttenteInit = [
   },
 ];
 
-const NAV_ITEMS = [
-  {
-    label: "Dashboard",
-    icon: Home,
-    href: "/dashboard",
-  },
-  {
-    label: "Agenda",
-    icon: Calendar,
-    href: "/agenda",
-  },
-  {
-    label: "Clients",
-    icon: Users,
-    href: "/clients",
-  },
-  {
-    label: "Bibliothèque",
-    icon: BookOpen,
-    href: "/bibliotheque",
-  },
-  {
-    label: "Facturation",
-    icon: FileText,
-    href: "/facturation",
-  },
-];
-
 export default function FacturationPage() {
-  const pathname = usePathname();
   const [selectedFacture, setSelectedFacture] = useState<number | null>(null);
   const [facturesEnAttente, setFacturesEnAttente] = useState<Facture[]>(mockFacturesEnAttenteInit);
   const [paiementsRecus, setPaiementsRecus] = useState(mockPaiementsRecusInit);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newFacture, setNewFacture] = useState({
+    client: "",
+    montant: "",
+    dateEcheance: "",
+  });
 
-  // Charger les paiements depuis localStorage
   useEffect(() => {
     const storedPaiements = getPaiements();
     if (storedPaiements.length > 0) {
       setPaiementsRecus(storedPaiements);
     } else {
-      // Initialiser avec les paiements par défaut
       savePaiements(mockPaiementsRecusInit);
       setPaiementsRecus(mockPaiementsRecusInit);
     }
@@ -128,9 +99,7 @@ export default function FacturationPage() {
         return;
       }
 
-      // Import dynamique de jsPDF pour éviter les problèmes avec Next.js
       const { jsPDF } = await import("jspdf");
-      
       const doc = new jsPDF();
       const today = new Date();
       const dateStr = today.toLocaleDateString("fr-FR", {
@@ -139,9 +108,9 @@ export default function FacturationPage() {
         year: "numeric",
       });
 
-      // En-tête avec logo et nom du coach
+      // En-tête
       doc.setFontSize(24);
-      doc.setTextColor(220, 38, 38); // Rouge
+      doc.setTextColor(220, 38, 38);
       doc.setFont("helvetica", "bold");
       doc.text("Demos", 20, 25);
       
@@ -155,42 +124,36 @@ export default function FacturationPage() {
       doc.setFont("helvetica", "bold");
       doc.text("FACTURE", 140, 25);
 
-      // Informations du client
+      // Informations
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Nom du client: ${clientFacture.client}`, 20, 48);
+      doc.text(`Client: ${clientFacture.client}`, 20, 48);
       doc.text(`Montant: ${clientFacture.montant}`, 20, 58);
       doc.text(`Date: ${dateStr}`, 20, 68);
 
-      // Ligne de séparation
       doc.setDrawColor(200, 200, 200);
       doc.line(20, 78, 190, 78);
 
-      // Détails
       doc.setFontSize(12);
-      doc.text("Détails de la facture", 20, 93);
-      
+      doc.text("Détails", 20, 93);
       doc.setFontSize(10);
       doc.text("Prestation de coaching", 20, 108);
       doc.text(clientFacture.montant, 160, 108);
 
-      // Total
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("Total:", 140, 128);
       doc.text(clientFacture.montant, 160, 128);
 
-      // Bas de page
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
       doc.text("Merci pour votre confiance!", 20, 148);
 
-      // Télécharger le PDF
       const fileName = `facture-${clientFacture.client.replace(/\s+/g, "-")}-${Date.now()}.pdf`;
       doc.save(fileName);
 
-      // Déplacer la facture de "en attente" vers "Payé"
+      // Déplacer vers paiements reçus
       const todayPayment = new Date();
       const dateStrPayment = todayPayment.toLocaleDateString("fr-FR", {
         day: "numeric",
@@ -198,7 +161,6 @@ export default function FacturationPage() {
         year: "numeric",
       });
 
-      // Ajouter aux paiements reçus
       const newPaiement = {
         id: Date.now(),
         client: clientFacture.client,
@@ -210,11 +172,8 @@ export default function FacturationPage() {
       const updatedPaiements = [...paiementsRecus, newPaiement];
       setPaiementsRecus(updatedPaiements);
       savePaiements(updatedPaiements);
-      
-      // Déclencher un événement personnalisé pour mettre à jour le Dashboard
       window.dispatchEvent(new CustomEvent('paiementsUpdated'));
 
-      // Retirer des factures en attente
       setFacturesEnAttente(facturesEnAttente.filter((f) => f.id !== selectedFacture));
       setSelectedFacture(null);
     } catch (error) {
@@ -223,175 +182,240 @@ export default function FacturationPage() {
     }
   };
 
+  const handleCreateFacture = () => {
+    if (!newFacture.client || !newFacture.montant || !newFacture.dateEcheance) {
+      alert("Veuillez remplir tous les champs");
+      return;
+    }
+
+    const dateEcheance = new Date(newFacture.dateEcheance);
+    const today = new Date();
+    const joursRestants = Math.ceil((dateEcheance.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    const nouvelleFacture: Facture = {
+      id: Date.now(),
+      client: newFacture.client,
+      montant: newFacture.montant.includes("€") ? newFacture.montant : `${newFacture.montant}€`,
+      dateEcheance: dateEcheance.toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      joursRestants: joursRestants > 0 ? joursRestants : 0,
+    };
+
+    setFacturesEnAttente([...facturesEnAttente, nouvelleFacture]);
+    setNewFacture({ client: "", montant: "", dateEcheance: "" });
+    setShowCreateModal(false);
+  };
+
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-between">
-      {/* Main Content */}
-      <div className="flex-1 px-4 py-6 pb-24 max-w-xl mx-auto w-full">
-        <section className="space-y-6">
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
+      
+      <main className="flex-1 lg:ml-64 p-6">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="bg-white rounded-xl shadow p-5 mb-4">
-            <div className="font-semibold text-slate-700 mb-1 flex items-center">
-              <FileText className="text-red-600 mr-2" size={24} />
-              Facturation
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Facturation</h1>
+              <p className="text-gray-500 mt-1">Gestion des factures et paiements</p>
             </div>
-            <div className="text-sm text-slate-400">
-              Gestion des factures et paiements
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition flex items-center gap-2 shadow-md"
+            >
+              <Plus size={20} />
+              Nouvelle facture
+            </button>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-600">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 text-sm font-medium">Total reçu</p>
+                  <p className="text-2xl font-bold text-gray-800 mt-2">
+                    {totalPaiements.toLocaleString("fr-FR")}€
+                  </p>
+                </div>
+                <div className="bg-red-100 p-3 rounded-full">
+                  <Euro className="text-red-600" size={24} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-600">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 text-sm font-medium">Factures en attente</p>
+                  <p className="text-2xl font-bold text-gray-800 mt-2">
+                    {facturesEnAttente.length}
+                  </p>
+                </div>
+                <div className="bg-gray-100 p-3 rounded-full">
+                  <Clock className="text-gray-600" size={24} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-600">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-500 text-sm font-medium">Paiements reçus</p>
+                  <p className="text-2xl font-bold text-gray-800 mt-2">
+                    {paiementsRecus.length}
+                  </p>
+                </div>
+                <div className="bg-red-100 p-3 rounded-full">
+                  <CheckCircle2 className="text-red-600" size={24} />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Récapitulatif des paiements reçus */}
-          <div className="bg-white rounded-xl shadow p-5">
-            <div className="font-semibold text-slate-700 mb-4 flex items-center justify-between">
-              <div className="flex items-center">
-                <CheckCircle2 className="text-red-600 mr-2" size={20} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Paiements reçus */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <CheckCircle2 className="text-red-600" size={24} />
                 Paiements reçus
-              </div>
-              <div className="text-lg font-bold text-red-600">
-                {totalPaiements}€
-              </div>
-            </div>
-            <div className="space-y-2">
-              {paiementsRecus.map((paiement) => (
-                <div
-                  key={paiement.id}
-                  className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 flex items-center justify-between"
-                >
-                  <div className="flex-1">
-                    <div className="font-medium text-slate-700">
-                      {paiement.client}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1">
-                      {paiement.date}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-700">
-                      {paiement.montant}
-                    </span>
-                    <CheckCircle2 className="text-gray-600" size={16} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Bouton Paiement en ligne */}
-          <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl p-6 shadow-lg mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold text-lg mb-1 flex items-center">
-                  <CreditCard className="mr-2" size={24} />
-                  Paiement en ligne
-                </div>
-                <div className="text-white/90 text-sm">
-                  Activez Stripe pour accepter les paiements en ligne
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  alert(
-                    "Configuration Stripe :\n\n1. Créez un compte Stripe sur stripe.com\n2. Récupérez vos clés API (publiques et secrètes)\n3. Configurez les webhooks pour les notifications\n4. Intégrez l'API Stripe dans votre application\n\nNous préparerons cette intégration prochainement !"
-                  );
-                }}
-                className="bg-white/20 hover:bg-white/30 text-white rounded-xl px-6 py-3 font-medium text-base transition flex items-center gap-2"
-              >
-                <CreditCard size={18} />
-                Activer Stripe
-              </button>
-            </div>
-          </div>
-
-          {/* Factures en attente */}
-          <div className="bg-white rounded-xl shadow p-5">
-            <div className="font-semibold text-slate-700 mb-4 flex items-center">
-              <Clock className="text-red-600 mr-2" size={20} />
-              Factures en attente
-            </div>
-            {facturesEnAttente.length === 0 ? (
-              <div className="text-center py-8 text-slate-400 text-sm">
-                Aucune facture en attente
-              </div>
-            ) : (
+              </h2>
               <div className="space-y-2">
-                {facturesEnAttente.map((facture) => (
+                {paiementsRecus.map((paiement) => (
                   <div
-                    key={facture.id}
-                    onClick={() => setSelectedFacture(facture.id)}
-                    className={`bg-white rounded-lg border border-slate-200 shadow-sm p-3 flex items-center justify-between cursor-pointer transition ${
-                      selectedFacture === facture.id
-                        ? "ring-2 ring-red-600 bg-gray-50"
-                        : "hover:bg-slate-100"
-                    }`}
+                    key={paiement.id}
+                    className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:shadow-md transition"
                   >
                     <div className="flex-1">
-                      <div className="font-medium text-slate-700">
-                        {facture.client}
-                      </div>
-                      <div className="text-xs text-slate-400 mt-1">
-                        Échéance : {facture.dateEcheance}
-                      </div>
-                      <div className="text-xs text-gray-600 font-medium mt-1">
-                        {facture.joursRestants} jour
-                        {facture.joursRestants > 1 ? "s" : ""} restant
-                        {facture.joursRestants > 1 ? "s" : ""}
-                      </div>
+                      <div className="font-medium text-gray-800">{paiement.client}</div>
+                      <div className="text-xs text-gray-500 mt-1">{paiement.date}</div>
                     </div>
-                    <div className="font-semibold text-slate-700">
-                      {facture.montant}
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-red-600">{paiement.montant}</span>
+                      <CheckCircle2 className="text-gray-600" size={16} />
                     </div>
                   </div>
                 ))}
               </div>
-            )}
+            </div>
+
+            {/* Factures en attente */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Clock className="text-red-600" size={24} />
+                Factures en attente
+              </h2>
+              {facturesEnAttente.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 text-sm">
+                  Aucune facture en attente
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {facturesEnAttente.map((facture) => (
+                    <div
+                      key={facture.id}
+                      onClick={() => setSelectedFacture(facture.id)}
+                      className={`bg-gray-50 border rounded-lg p-3 cursor-pointer transition ${
+                        selectedFacture === facture.id
+                          ? "border-red-600 bg-red-50"
+                          : "border-gray-200 hover:shadow-md"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-800">{facture.client}</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Échéance: {facture.dateEcheance}
+                          </div>
+                          <div className="text-xs text-gray-600 font-medium mt-1">
+                            {facture.joursRestants} jour{facture.joursRestants > 1 ? "s" : ""} restant{facture.joursRestants > 1 ? "s" : ""}
+                          </div>
+                        </div>
+                        <div className="font-semibold text-gray-800">{facture.montant}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Bouton Générer une facture PDF */}
-          <div className="bg-white rounded-xl shadow p-5">
-            <button
-              onClick={generatePDF}
-              disabled={selectedFacture === null}
-              className={`w-full rounded-lg px-4 py-3 flex items-center justify-center gap-2 transition ${
-                selectedFacture === null
-                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                  : "bg-red-600 text-white hover:bg-red-700"
-              }`}
-            >
-              <Download className={selectedFacture === null ? "text-slate-500" : "text-white"} size={20} />
-              <span className="font-medium">
-                {selectedFacture === null
-                  ? "Sélectionnez une facture pour générer le PDF"
-                  : "Générer une facture PDF"}
-              </span>
-            </button>
-          </div>
-        </section>
-      </div>
+          {/* Bouton générer PDF */}
+          {selectedFacture && (
+            <div className="mt-6 bg-white rounded-lg shadow-md p-6">
+              <button
+                onClick={generatePDF}
+                className="w-full bg-red-600 text-white rounded-lg px-6 py-3 hover:bg-red-700 transition flex items-center justify-center gap-2 shadow-md"
+              >
+                <Download size={20} />
+                Générer la facture PDF
+              </button>
+            </div>
+          )}
 
-      {/* Bottom Navigation (mobile) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t z-[9999] max-w-xl mx-auto">
-        <ul className="flex justify-around px-2 py-3">
-          {NAV_ITEMS.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  className={`flex flex-col items-center justify-center px-4 py-2 rounded-xl transition min-w-[60px] active:scale-95 ${
-                    isActive
-                      ? "text-red-600 bg-gray-50"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-                >
-                  <IconComponent size={24} />
-                  <span className="text-xs mt-1 font-medium">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+          {/* Modal créer facture */}
+          {showCreateModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Nouvelle facture</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Client
+                    </label>
+                    <input
+                      type="text"
+                      value={newFacture.client}
+                      onChange={(e) => setNewFacture({ ...newFacture, client: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none"
+                      placeholder="Nom du client"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Montant
+                    </label>
+                    <input
+                      type="text"
+                      value={newFacture.montant}
+                      onChange={(e) => setNewFacture({ ...newFacture, montant: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none"
+                      placeholder="100€"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date d'échéance
+                    </label>
+                    <input
+                      type="date"
+                      value={newFacture.dateEcheance}
+                      onChange={(e) => setNewFacture({ ...newFacture, dateEcheance: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowCreateModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handleCreateFacture}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                  >
+                    Créer
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
-
