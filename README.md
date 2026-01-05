@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏋️ Demos - Application de Coaching Premium
 
-## Getting Started
+Application web complète pour gérer votre activité de coaching : clients, séances, facturation et suivi.
 
-First, run the development server:
+## 🚀 Déploiement Rapide
+
+### Sur Vercel (Recommandé - Gratuit)
+
+1. **Poussez votre code sur GitHub**
+2. **Allez sur [vercel.com](https://vercel.com)**
+3. **Importez votre repository**
+4. **Cliquez sur "Deploy"** → C'est tout ! ✅
+
+📖 **Guide détaillé** : Voir `DEPLOIEMENT.md`
+
+---
+
+## 🛠️ Développement Local
 
 ```bash
+# Installer les dépendances
+npm install
+
+# Lancer le serveur de développement
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Ouvrir http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Fonctionnalités
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 📅 **Agenda** : Gestion complète des rendez-vous
+- 👥 **Clients** : Dossiers détaillés avec suivi progression
+- 💰 **Facturation** : Génération de PDF et suivi des paiements
+- 📚 **Bibliothèque** : Gestion des exercices avec vidéos YouTube
+- 💬 **Messagerie** : Chat entre coach et clients
+- 💳 **Paiements** : Intégration Stripe (simulée)
+- 📱 **Mode Client** : Portail dédié pour les clients
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📱 Technologies
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS**
+- **Lucide React** (Icônes)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📄 Licence
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Propriétaire - Demos © 2025
