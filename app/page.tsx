@@ -70,11 +70,13 @@ export default function Page() {
 
       if (profileError) throw profileError;
 
+      const role = profile.role || profile.user_type;
+
       // Stocker les infos dans localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem("demos-user-id", session.user.id);
         localStorage.setItem("demos-user-name", profile.full_name || name);
-        localStorage.setItem("demos-user-type", userRole || "client");
+        localStorage.setItem("demos-user-type", role || "client");
         localStorage.setItem("demos-logged-in", "true");
       }
 
