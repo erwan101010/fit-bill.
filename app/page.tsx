@@ -22,17 +22,11 @@ export default function Page() {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role, user_type")
-          .eq("id", session.user.id)
-          .single();
-        
-        const userRole = profile?.role || profile?.user_type;
-        if (userRole === "coach") {
+        const userEmail = session.user.email;
+        if (userEmail === "erwankm@gmail.com") {
           router.push("/dashboard");
-        } else if (userRole === "client") {
-          router.push("/client");
+        } else {
+          router.push("/client-portal");
         }
       }
     };
@@ -76,8 +70,6 @@ export default function Page() {
 
       if (profileError) throw profileError;
 
-      const userRole = profile.role || profile.user_type;
-
       // Stocker les infos dans localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem("demos-user-id", session.user.id);
@@ -86,11 +78,12 @@ export default function Page() {
         localStorage.setItem("demos-logged-in", "true");
       }
 
-      // Rediriger selon le rôle
-      if (userRole === "coach") {
+      // Rediriger selon l'email (priorité donnée à l'email spécifique)
+      const userEmail = session.user.email;
+      if (userEmail === "erwankm@gmail.com") {
         router.push("/dashboard");
       } else {
-        router.push("/client");
+        router.push("/client-portal");
       }
     } catch (err: any) {
       setError(err.message || "Erreur de connexion");
@@ -152,11 +145,12 @@ export default function Page() {
 
       alert("Inscription réussie ! Vérifiez votre email pour confirmer votre compte.");
 
-      // Rediriger selon le rôle
-      if (userType === "coach") {
+      // Rediriger selon l'email (priorité donnée à l'email spécifique)
+      const signupEmail = authData.user.email;
+      if (signupEmail === "erwankm@gmail.com") {
         router.push("/dashboard");
       } else {
-        router.push("/client");
+        router.push("/client-portal");
       }
     } catch (err: any) {
       setError(err.message || "Erreur lors de l'inscription");

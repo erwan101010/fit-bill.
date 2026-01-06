@@ -390,7 +390,7 @@ export default function DashboardPage() {
           {/* Bouton VOIR CÔTÉ CLIENT */}
           <div className="flex justify-center my-12">
             <a
-              href="/client"
+              href="/client-portal"
               className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl px-12 py-6 text-xl font-bold flex items-center gap-3 hover:from-red-700 hover:to-red-800 transition-all shadow-2xl shadow-red-500/50 border-2 border-white/20 hover:border-white/40 hover:scale-105 active:scale-95"
               style={{
                 boxShadow: '0 0 50px rgba(239, 68, 68, 0.6), 0 20px 25px -5px rgba(0, 0, 0, 0.1)',

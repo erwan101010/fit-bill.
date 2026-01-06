@@ -18,17 +18,17 @@ const NAV_ITEMS = [
   {
     label: "Accueil",
     icon: Home,
-    href: "/client",
+    href: "/client-portal",
   },
   {
     label: "Progression",
     icon: TrendingUp,
-    href: "/client",
+    href: "/client-portal",
   },
   {
     label: "Chat",
     icon: MessageCircle,
-    href: "/client/chat",
+    href: "/client-portal/chat",
   },
 ];
 
@@ -120,7 +120,7 @@ export default function ClientSidebar() {
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             {NAV_ITEMS.map((item) => {
               const IconComponent = item.icon;
-              const isActive = pathname === item.href || (item.href === "/client" && pathname.startsWith("/client") && pathname !== "/client/chat");
+              const isActive = pathname === item.href || (item.href === "/client-portal" && pathname.startsWith("/client-portal") && pathname !== "/client-portal/chat");
               return (
                 <Link
                   key={item.href}
