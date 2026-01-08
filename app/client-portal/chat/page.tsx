@@ -46,7 +46,7 @@ export default function ClientChatPage() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("user_type, role")
+        .select("user_type, role, updated_at")
         .eq("id", currentUserId)
         .single();
 
@@ -58,7 +58,7 @@ export default function ClientChatPage() {
 
       const { data: coachData } = await supabase
         .from("profiles")
-        .select("id, full_name")
+        .select("id, full_name, updated_at")
         .eq("user_type", "coach")
         .limit(1)
         .single();
@@ -207,7 +207,7 @@ export default function ClientChatPage() {
                     <div
                       className={`max-w-[75%] rounded-2xl px-4 py-2 ${
                         isClient
-                          ? "bg-red-600 text-white rounded-br-md"
+                          ? "bg-demos-red text-white rounded-br-md"
                           : "bg-gray-700 text-white rounded-bl-md"
                       }`}
                     >
@@ -252,7 +252,7 @@ export default function ClientChatPage() {
             <button
               onClick={handleSend}
               disabled={!newMessage.trim()}
-              className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-demos-red hover:bg-demos-red/90 text-white rounded-lg px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send size={20} />
             </button>

@@ -54,7 +54,7 @@ export default function ClientChatPage() {
       // Récupérer le type d'utilisateur
       const { data: profile } = await supabase
         .from("profiles")
-        .select("user_type, role")
+        .select("user_type, role, updated_at")
         .eq("id", currentUserId)
         .single();
 
@@ -67,7 +67,7 @@ export default function ClientChatPage() {
       // Récupérer le coach (premier coach trouvé)
       const { data: coachData } = await supabase
         .from("profiles")
-        .select("id, full_name")
+        .select("id, full_name, updated_at")
         .eq("user_type", "coach")
         .limit(1)
         .single();

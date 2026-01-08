@@ -498,7 +498,7 @@ export default function FacturationPage() {
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-xl hover:from-red-700 hover:to-red-800 transition-all shadow-xl shadow-red-500/30 border border-white/10 flex items-center gap-2 font-medium"
+              className="bg-gradient-to-r from-demos-red to-demos-red/90 text-white px-6 py-3 rounded-xl hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-xl shadow-demos-red/30 border border-white/10 flex items-center gap-2 font-medium"
               style={{
                 boxShadow: '0 0 30px rgba(239, 68, 68, 0.5), 0 10px 25px -5px rgba(0, 0, 0, 0.1)',
               }}
@@ -518,7 +518,7 @@ export default function FacturationPage() {
                     {totalPaiements.toLocaleString("fr-FR")}€
                   </p>
                 </div>
-                <div className="bg-red-600/20 p-3 rounded-full border border-red-500/30">
+                <div className="bg-demos-red/20 p-3 rounded-full border border-demos-red/30">
                   <Euro className="text-red-400" size={24} />
               </div>
               </div>
@@ -582,7 +582,7 @@ export default function FacturationPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="bg-red-600/20 p-2 rounded-lg border border-red-500/30">
+                      <div className="bg-demos-red/20 p-2 rounded-lg border border-demos-red/30">
                         <Folder className="text-red-400" size={20} />
                       </div>
                       <div>
@@ -638,7 +638,7 @@ export default function FacturationPage() {
                           <div className="flex-1">
                             <button
                               onClick={() => generatePDF(facture)}
-                              className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg px-4 py-2 hover:from-red-700 hover:to-red-800 transition-all shadow-lg shadow-red-500/30 border border-white/10 flex items-center justify-center gap-2 text-sm font-medium hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+                              className="w-full bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-lg px-4 py-2 hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-lg shadow-demos-red/30 border border-white/10 flex items-center justify-center gap-2 text-sm font-medium hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
                             >
                               <Download size={16} />
                               Générer PDF
@@ -726,7 +726,7 @@ export default function FacturationPage() {
                   </button>
             <button
                     onClick={handleCreateFacture}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all shadow-lg"
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-lg"
                   >
                     Créer
             </button>

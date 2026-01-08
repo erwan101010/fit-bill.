@@ -73,7 +73,7 @@ export default function DashboardPage() {
           const coachId = session.user.id;
           const { data: profile } = await supabase
             .from("profiles")
-            .select("full_name, email")
+            .select("full_name, email, updated_at")
             .eq("id", coachId)
             .single();
           
@@ -109,7 +109,7 @@ export default function DashboardPage() {
           // Nouveau client (depuis Supabase)
           const { data: clientsData } = await supabase
             .from("profiles")
-            .select("full_name, created_at")
+            .select("full_name, created_at, updated_at")
             .eq("user_type", "client")
             .order("created_at", { ascending: false })
             .limit(1);
@@ -174,7 +174,7 @@ export default function DashboardPage() {
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4">
             <button
               onClick={() => setShowSearch(true)}
-              className="w-full bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-white/40 px-6 py-4 flex items-center gap-4 hover:shadow-red-500/30 hover:border-red-500/30 transition-all duration-300 group"
+              className="w-full bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-white/40 px-6 py-4 flex items-center gap-4 hover:shadow-demos-red/30 hover:border-demos-red/30 transition-all duration-300 group"
               style={{
                 boxShadow: '0 0 30px rgba(239, 68, 68, 0.3), 0 10px 25px -5px rgba(0, 0, 0, 0.1)',
               }}
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Rechercher clients, factures..."
-                    className="w-full bg-white/50 backdrop-blur-md rounded-xl border-2 border-white/40 px-12 py-4 text-base text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 outline-none transition-all shadow-lg"
+                          className="w-full bg-white/50 backdrop-blur-md rounded-xl border-2 border-white/40 px-12 py-4 text-base text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-demos-red/50 focus:border-demos-red/50 outline-none transition-all shadow-lg"
                     autoFocus
                   />
                   <button
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                             className="w-full text-left p-3 bg-white/50 hover:bg-white/80 rounded-xl border border-white/40 hover:border-red-500/50 transition-all hover:shadow-lg"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="bg-red-600/20 p-2 rounded-lg border border-red-500/30">
+                              <div className="bg-demos-red/20 p-2 rounded-lg border border-demos-red/30">
                                 <User size={18} className="text-red-500" strokeWidth={1.5} />
                               </div>
                               <div>
@@ -362,7 +362,7 @@ export default function DashboardPage() {
                     <div key={index} className="flex-1 flex flex-col items-center gap-3">
                       <div className="relative w-full h-56 flex items-end">
                         <div
-                          className="w-full bg-gradient-to-t from-red-600 to-red-700 rounded-t-xl transition-all hover:from-red-700 hover:to-red-800 cursor-pointer shadow-lg shadow-red-500/20 border border-white/10"
+                          className="w-full bg-gradient-to-t from-demos-red to-demos-red/90 rounded-t-xl transition-all hover:from-demos-red/90 hover:to-demos-red/80 cursor-pointer shadow-lg shadow-demos-red/20 border border-white/10"
                           style={{ height: `${(data.ca / maxCA) * 100}%` }}
                           title={`${data.mois}: ${data.ca}€`}
                         ></div>
@@ -391,7 +391,7 @@ export default function DashboardPage() {
           <div className="flex justify-center my-12">
             <a
               href="/client-portal"
-              className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl px-12 py-6 text-xl font-bold flex items-center gap-3 hover:from-red-700 hover:to-red-800 transition-all shadow-2xl shadow-red-500/50 border-2 border-white/20 hover:border-white/40 hover:scale-105 active:scale-95"
+              className="bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-2xl px-12 py-6 text-xl font-bold flex items-center gap-3 hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-2xl shadow-demos-red/50 border-2 border-white/20 hover:border-white/40 hover:scale-105 active:scale-95"
               style={{
                 boxShadow: '0 0 50px rgba(239, 68, 68, 0.6), 0 20px 25px -5px rgba(0, 0, 0, 0.1)',
               }}

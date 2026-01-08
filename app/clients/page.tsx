@@ -305,7 +305,7 @@ function ClientsPageContent() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="font-semibold text-gray-800 mb-4 flex items-center justify-between">
               <span className="text-xl">Liste des clients</span>
-              <button className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition">
+              <button className="bg-demos-red text-white p-2 rounded-lg hover:bg-demos-red/90 transition">
                 <Plus size={20} />
               </button>
             </div>
@@ -525,7 +525,7 @@ function ClientsPageContent() {
                                 alert("Une erreur est survenue lors de la génération du PDF");
                               }
                             }}
-                            className="bg-red-600 text-white rounded-xl px-6 py-3 text-base font-medium hover:bg-red-700 transition flex items-center gap-2 shadow-sm"
+                            className="bg-demos-red text-white rounded-xl px-6 py-3 text-base font-medium hover:bg-demos-red/90 transition flex items-center gap-2 shadow-sm"
                           >
                             <FileText size={16} />
                             Générer Bilan PDF
@@ -790,7 +790,7 @@ function ClientsPageContent() {
                                     });
                                   }
                                 }}
-                                className="mt-4 w-full bg-red-600 text-white rounded-xl px-6 py-3 text-base font-medium hover:bg-red-700 transition shadow-sm active:scale-95"
+                                className="mt-4 w-full bg-demos-red text-white rounded-xl px-6 py-3 text-base font-medium hover:bg-demos-red/90 transition shadow-sm active:scale-95"
                               >
                                 Enregistrer les mensurations
                               </button>
@@ -1058,7 +1058,7 @@ function ClientsPageContent() {
                                     setSelectedJour("");
                                     setShowProgrammeModal(true);
                                   }}
-                                  className="w-full bg-red-600 text-white rounded-xl px-6 py-4 text-base font-medium hover:bg-red-700 transition shadow-sm flex items-center justify-center gap-2"
+                                  className="w-full bg-demos-red text-white rounded-xl px-6 py-4 text-base font-medium hover:bg-demos-red/90 transition shadow-sm flex items-center justify-center gap-2"
                                 >
                                   <Edit size={20} />
                                   Modifier le programme
@@ -1075,7 +1075,7 @@ function ClientsPageContent() {
                                     setSelectedJour("");
                                     setShowProgrammeModal(true);
                                   }}
-                                  className="mt-4 bg-red-600 text-white rounded-xl px-6 py-3 text-base font-medium hover:bg-red-700 transition shadow-sm flex items-center gap-2 mx-auto"
+                                  className="mt-4 bg-demos-red text-white rounded-xl px-6 py-3 text-base font-medium hover:bg-demos-red/90 transition shadow-sm flex items-center gap-2 mx-auto"
                                 >
                                   <Plus size={20} />
                                   Créer un programme
@@ -1320,7 +1320,7 @@ function ProgrammeModal({
                       <button
                         type="button"
                         onClick={handleAddExercice}
-                        className="flex-1 bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-700 transition"
+                        className="flex-1 bg-demos-red text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-demos-red/90 transition"
                       >
                         Ajouter
                       </button>
@@ -1363,7 +1363,7 @@ function ProgrammeModal({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-red-600 text-white rounded-xl px-6 py-3 hover:bg-red-700 transition shadow-sm font-medium text-base"
+            className="flex-1 bg-demos-red text-white rounded-xl px-6 py-3 hover:bg-demos-red/90 transition shadow-sm font-medium text-base"
           >
             Enregistrer le programme
           </button>

@@ -74,12 +74,10 @@ export default function Sidebar() {
           {/* Logo */}
           <div className="p-6 border-b border-white/10">
             <div className="flex items-center gap-3 mb-2">
-              <div className="bg-gradient-to-br from-red-600 to-red-700 p-2 rounded-lg shadow-xl shadow-red-500/20 border border-white/10">
+              <div className="bg-gradient-to-br from-demos-red/20 to-demos-red/30 p-2 rounded-lg shadow-xl shadow-demos-red/20 border border-white/10">
                 <Home className="text-white" size={20} />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Demos
-              </h1>
+              <img src="/logo.png" alt="DEMOS Coaching Premium" className="h-10 w-auto" />
             </div>
             <div className="flex items-center gap-2 mt-3 ml-11">
               <div className="flex items-center gap-2">

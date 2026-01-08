@@ -54,7 +54,7 @@ export default function ChatPage() {
       // Récupérer les clients depuis Supabase
       const { data: clientsData, error } = await supabase
         .from("profiles")
-        .select("id, full_name, email")
+        .select("id, full_name, email, updated_at")
         .eq("user_type", "client");
 
       if (error) {
@@ -194,7 +194,7 @@ export default function ChatPage() {
                     key={client.id}
                     onClick={() => setSelectedClientId(client.id)}
                     className={`w-full p-4 border-b border-gray-800 text-left transition-all ${
-                      isSelected ? "bg-red-600/20 border-l-4 border-l-red-500" : "hover:bg-gray-800"
+                      isSelected ? "bg-demos-red/20 border-l-4 border-l-demos-red/50" : "hover:bg-gray-800"
                     }`}
                   >
                     <p className="text-white font-medium">{client.name}</p>
@@ -233,7 +233,7 @@ export default function ChatPage() {
                           <div
                             className={`max-w-[75%] rounded-2xl px-4 py-2 ${
                               isCoach
-                                ? "bg-red-600 text-white rounded-br-md"
+                                ? "bg-demos-red text-white rounded-br-md"
                                 : "bg-gray-700 text-white rounded-bl-md"
                             }`}
                           >
@@ -278,7 +278,7 @@ export default function ChatPage() {
                   <button
                     onClick={handleSend}
                     disabled={!newMessage.trim()}
-                    className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-demos-red hover:bg-demos-red/90 text-white rounded-lg px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send size={20} />
                   </button>

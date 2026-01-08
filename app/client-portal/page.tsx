@@ -34,7 +34,7 @@ export default function ClientPage() {
           {/* Suivi */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="bg-red-600/20 p-3 rounded-full border border-red-500/30">
+              <div className="bg-demos-red/20 p-3 rounded-full border border-demos-red/30">
                 <TrendingUp className="text-red-400" size={24} strokeWidth={1.5} />
               </div>
               <div>
@@ -61,7 +61,7 @@ export default function ClientPage() {
           {/* Bouton Chat */}
           <button
             onClick={() => router.push("/client-portal/chat")}
-            className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl shadow-2xl p-6 border border-red-500/30 hover:from-red-700 hover:to-red-800 transition-all duration-300 hover:shadow-red-500/40 hover:-translate-y-1 flex items-center justify-center gap-4"
+            className="w-full bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl shadow-2xl p-6 border border-demos-red/30 hover:from-demos-red/90 hover:to-demos-red/80 transition-all duration-300 shadow-demos-red/40 hover:-translate-y-1 flex items-center justify-center gap-4"
           >
             <MessageCircle size={28} strokeWidth={1.5} />
             <div className="text-left">

@@ -45,7 +45,7 @@ export default function ClientSidebar() {
         // Récupérer le coach depuis Supabase
         const { data: coachData } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, updated_at")
           .eq("user_type", "coach")
           .limit(1)
           .single();
@@ -88,14 +88,12 @@ export default function ClientSidebar() {
         <div className="flex flex-col h-full backdrop-blur-sm">
           {/* Logo */}
           <div className="p-6 border-b border-white/10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="bg-gradient-to-br from-red-600 to-red-700 p-2 rounded-lg shadow-xl shadow-red-500/20 border border-white/10">
-                <Home className="text-white" size={20} />
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-gradient-to-br from-demos-red/20 to-demos-red/30 p-2 rounded-lg shadow-xl shadow-demos-red/20 border border-white/10">
+                  <Home className="text-white" size={20} />
+                </div>
+                <img src="/logo.png" alt="DEMOS Coaching Premium" className="h-10 w-auto" />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                Demos
-              </h1>
-            </div>
             <div className="flex items-center gap-2 mt-3 ml-11">
               <span className="text-gray-300 text-sm font-medium">
                 {typeof window !== "undefined" ? localStorage.getItem("demos-user-name") || "Client" : "Client"}
@@ -108,6 +106,8 @@ export default function ClientSidebar() {
             <p className="text-gray-400 text-xs mt-1 ml-11">Espace Client</p>
             {coach && (
               <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-lg px-3 py-2">
+                <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-demos-red/20 to-demos-red/30 border border-demos-red/30 rounded-lg px-3 py-2">
+                <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-demos-red/20 to-demos-red/30 border border-demos-red/30 rounded-lg px-3 py-2">
                 <User className="text-red-400" size={14} />
                 <span className="text-gray-300">
                   Coach: <span className="text-white font-medium">{coach.name}</span>
@@ -129,6 +129,7 @@ export default function ClientSidebar() {
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative group ${
                     isActive
                       ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-xl shadow-red-500/30 border border-white/10"
+                        ? "bg-gradient-to-r from-demos-red to-demos-red/90 text-white shadow-xl shadow-demos-red/30 border border-white/10"
                       : "text-gray-300 hover:bg-gray-800/50 hover:text-white border border-transparent hover:border-white/5"
                   }`}
                 >
