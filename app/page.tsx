@@ -20,9 +20,10 @@ export default function Page() {
     setMounted(true);
     // Vérifier si l'utilisateur est déjà connecté
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const userEmail = session.user.email;
+      const res = await supabase.auth.getSession();
+      const session = res?.data?.session;
+      if (session && session.user) {
+        const userEmail = session.user.email || "";
         if (userEmail === "erwankm@gmail.com") {
           router.push("/dashboard");
         } else {
@@ -49,14 +50,15 @@ export default function Page() {
       if (authError) {
         // Si erreur "Email not confirmed", essayer de récupérer la session
         if (authError.message.includes("Email not confirmed")) {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (!session) throw authError;
+          const res2 = await supabase.auth.getSession();
+          const sessionCheck = res2?.data?.session;
+          if (!sessionCheck) throw authError;
         } else {
           throw authError;
         }
       }
 
-      const session = authData?.session || (await supabase.auth.getSession()).data.session;
+      const session = authData?.session || (await supabase.auth.getSession())?.data?.session;
       if (!session || !session.user) {
         throw new Error("Erreur de connexion");
       }
@@ -64,18 +66,18 @@ export default function Page() {
       // Récupérer le profil avec le rôle
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("user_type, role, full_name")
+        .select("user_type, role, full_name, updated_at")
         .eq("id", session.user.id)
         .single();
 
       if (profileError) throw profileError;
 
-      const role = profile.role || profile.user_type;
+      const role = profile?.role || profile?.user_type;
 
       // Stocker les infos dans localStorage
       if (typeof window !== "undefined") {
         localStorage.setItem("demos-user-id", session.user.id);
-        localStorage.setItem("demos-user-name", profile.full_name || name);
+        localStorage.setItem("demos-user-name", profile?.full_name || name);
         localStorage.setItem("demos-user-type", role || "client");
         localStorage.setItem("demos-logged-in", "true");
       }
@@ -148,7 +150,7 @@ export default function Page() {
       alert("Inscription réussie ! Vérifiez votre email pour confirmer votre compte.");
 
       // Rediriger selon l'email (priorité donnée à l'email spécifique)
-      const signupEmail = authData.user.email;
+      const signupEmail = authData.user?.email;
       if (signupEmail === "erwankm@gmail.com") {
         router.push("/dashboard");
       } else {
@@ -178,7 +180,7 @@ export default function Page() {
       <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-white/10 p-8 max-w-md w-full backdrop-blur-sm">
         {/* Logo / Header */}
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-full p-5 w-24 h-24 mx-auto mb-4 flex items-center justify-center shadow-xl shadow-red-500/20 border border-white/10">
+          <div className="bg-gradient-to-br from-demos-red to-demos-red/90 rounded-full p-5 w-24 h-24 mx-auto mb-4 flex items-center justify-center shadow-xl shadow-demos-red/20 border border-white/10">
             <Dumbbell className="text-white" size={40} />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
@@ -191,7 +193,7 @@ export default function Page() {
           <div className="space-y-4">
             <button
               onClick={() => setMode("coach")}
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-4 text-base font-medium hover:from-red-700 hover:to-red-800 transition-all shadow-xl shadow-red-500/30 flex items-center justify-center gap-3 active:scale-95 border border-white/10"
+              className="w-full bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl px-6 py-4 text-base font-medium hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-xl shadow-demos-red/30 flex items-center justify-center gap-3 active:scale-95 border border-white/10"
             >
               <Lock size={24} />
               Accès Coach
@@ -229,7 +231,7 @@ export default function Page() {
             </div>
 
             {error && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-3 text-red-300 text-sm">
+              <div className="bg-demos-red/20 border border-demos-red/50 rounded-xl p-3 text-demos-red/70 text-sm">
                 {error}
               </div>
             )}
@@ -244,7 +246,7 @@ export default function Page() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Votre nom"
-                  className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 outline-none transition-all shadow-lg"
+                  className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-demos-red/50 focus:border-demos-red/50 outline-none transition-all shadow-lg"
                   required
                 />
               </div>
@@ -258,7 +260,7 @@ export default function Page() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="votre@email.com"
-                  className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 outline-none transition-all shadow-lg"
+                  className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-demos-red/50 focus:border-demos-red/50 outline-none transition-all shadow-lg"
                   required
                 />
               </div>
@@ -289,7 +291,7 @@ export default function Page() {
                     onChange={(e) => setCoachCode(e.target.value.toUpperCase())}
                     placeholder="Ex: ABC123"
                     maxLength={6}
-                    className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 outline-none transition-all shadow-lg uppercase"
+                    className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/10 px-4 py-3 text-base text-white placeholder-gray-500 focus:ring-2 focus:ring-demos-red/50 focus:border-demos-red/50 outline-none transition-all shadow-lg uppercase"
                   />
                   <p className="text-xs text-gray-500 mt-2">
                     Si vous avez reçu un code de votre coach, entrez-le ici
@@ -311,7 +313,7 @@ export default function Page() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl px-6 py-3 hover:from-red-700 hover:to-red-800 transition-all shadow-xl shadow-red-500/30 font-medium text-base active:scale-95 border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl px-6 py-3 hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-xl shadow-demos-red/30 font-medium text-base active:scale-95 border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Chargement..." : isSignUp ? "S'inscrire" : "Se connecter"}
                 </button>
