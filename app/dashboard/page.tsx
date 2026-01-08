@@ -262,7 +262,7 @@ export default function DashboardPage() {
 
           {/* Header */}
           <div className="mb-8 mt-20">
-            <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-800">BIENVENUE COACH</h1>
             <p className="text-gray-500 mt-1">Vue d'ensemble de votre activité</p>
           </div>
 
