@@ -105,9 +105,7 @@ export default function ClientSidebar() {
             </div>
             <p className="text-gray-400 text-xs mt-1 ml-11">Espace Client</p>
             {coach && (
-              <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-red-600/20 to-red-700/20 border border-red-500/30 rounded-lg px-3 py-2">
-                <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-demos-red/20 to-demos-red/30 border border-demos-red/30 rounded-lg px-3 py-2">
-                <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-demos-red/20 to-demos-red/30 border border-demos-red/30 rounded-lg px-3 py-2">
+              <div className="mt-3 ml-11 flex items-center gap-2 text-xs bg-gradient-to-r from-demos-red/20 to-demos-red/30 border border-demos-red/30 rounded-lg px-3 py-2">
                 <User className="text-red-400" size={14} />
                 <span className="text-gray-300">
                   Coach: <span className="text-white font-medium">{coach.name}</span>
