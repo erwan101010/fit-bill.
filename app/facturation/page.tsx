@@ -462,6 +462,8 @@ export default function FacturationPage() {
     setShowCreateModal(false);
   };
 
+  const [receiptModal, setReceiptModal] = useState<{ visible: boolean; data?: any }>({ visible: false });
+
   const handleCheckout = async (facture: Facture) => {
     try {
       const { createPaymentIntent } = await import("../utils/stripe");
@@ -481,6 +483,28 @@ export default function FacturationPage() {
     } catch (error) {
       console.error("Erreur création paiement Stripe:", error);
       alert("Erreur lors de l'initialisation du paiement. Vérifiez votre configuration Stripe.");
+    }
+  };
+
+  const generateStripeLink = async (facture: Facture) => {
+    try {
+      const montantNum = parseFloat(facture.montant.replace("€", "").replace(",", "."));
+      const res = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: montantNum, clientName: facture.client, factureId: facture.id }),
+      });
+      const json = await res.json();
+      if (json.sessionUrl) {
+        window.open(json.sessionUrl, '_blank');
+        return;
+      }
+      if (json.mockReceipt) {
+        setReceiptModal({ visible: true, data: json.receipt });
+      }
+    } catch (e) {
+      console.error('Erreur génération lien Stripe:', e);
+      alert('Impossible de créer le lien de paiement');
     }
   };
 
@@ -655,13 +679,23 @@ export default function FacturationPage() {
                             </button>
                           )}
                           {facture.status === "En attente" && (
-                            <button
-                              onClick={() => handleCheckout(facture)}
-                              className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg px-4 py-2 hover:from-green-700 hover:to-green-800 transition-all shadow-lg shadow-green-500/30 border border-white/10 flex items-center justify-center gap-2 text-sm font-medium hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-                            >
-                              <CreditCard size={16} />
-                              Payer
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleCheckout(facture)}
+                                className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg px-4 py-2 hover:from-green-700 hover:to-green-800 transition-all shadow-lg shadow-green-500/30 border border-white/10 flex items-center justify-center gap-2 text-sm font-medium hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+                              >
+                                <CreditCard size={16} />
+                                Payer
+                              </button>
+
+                              <button
+                                onClick={() => generateStripeLink(facture)}
+                                className="flex-1 bg-[#E21D2C] text-white rounded-lg px-4 py-2 hover:brightness-95 transition-all shadow-lg border border-white/10 flex items-center justify-center gap-2 text-sm font-medium"
+                              >
+                                <CreditCard size={16} />
+                                Générer lien de paiement Stripe
+                              </button>
+                            </>
                           )}
                     </div>
                   </div>
@@ -731,6 +765,34 @@ export default function FacturationPage() {
                     Créer
             </button>
           </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal: Mock Stripe Receipt */}
+          {receiptModal.visible && (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl w-full max-w-md p-6 text-left">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold">Reçu Stripe (Mode démo)</h3>
+                    <p className="text-sm text-gray-600">Simulation de paiement</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-xl">{receiptModal.data?.amount}</div>
+                    <div className="text-xs text-gray-500">{receiptModal.data?.date}</div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="text-sm"><strong>Client:</strong> {receiptModal.data?.clientName}</p>
+                  <p className="text-sm"><strong>Description:</strong> {receiptModal.data?.description}</p>
+                  <p className="text-sm"><strong>ID:</strong> {receiptModal.data?.id}</p>
+                </div>
+
+                <div className="mt-6 flex justify-end gap-2">
+                  <button onClick={() => setReceiptModal({ visible: false })} className="px-4 py-2 rounded-lg border">Fermer</button>
+                </div>
               </div>
             </div>
           )}

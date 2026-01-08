@@ -52,32 +52,32 @@ export default function CoachDashboard() {
 
         {/* SECTION 1: Stats */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 border border-[#E21D2C]">
             <div className="flex items-center gap-4">
               <Wallet className="text-[#E21D2C]" size={28} />
               <div>
-                <div className="text-sm text-gray-300">CA Ce Mois</div>
-                <div className="text-2xl font-bold">2 300€</div>
+                <div className="text-sm text-white/80">CA Ce Mois</div>
+                <div className="text-2xl font-bold text-white">2 300€</div>
               </div>
             </div>
           </div>
 
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 border border-[#E21D2C]">
             <div className="flex items-center gap-4">
               <Wallet className="text-[#E21D2C]" size={28} />
               <div>
-                <div className="text-sm text-gray-300">CA Cette Année</div>
-                <div className="text-2xl font-bold">27 400€</div>
+                <div className="text-sm text-white/80">CA Cette Année</div>
+                <div className="text-2xl font-bold text-white">27 400€</div>
               </div>
             </div>
           </div>
 
-          <div className="glass-card p-6">
+          <div className="glass-card p-6 border border-[#E21D2C]">
             <div className="flex items-center gap-4">
               <MessageSquare className="text-[#E21D2C]" size={28} />
               <div>
-                <div className="text-sm text-gray-300">Nouveaux Messages</div>
-                <div className="text-2xl font-bold">3</div>
+                <div className="text-sm text-white/80">Nouveaux Messages</div>
+                <div className="text-2xl font-bold text-white">3</div>
               </div>
             </div>
           </div>
@@ -148,9 +148,9 @@ export default function CoachDashboard() {
           <div className="glass-card p-6">
             <h3 className="text-sm text-gray-400 mb-4">Notifications clients</h3>
             <ul className="space-y-3 text-sm text-gray-300">
-              <li>Nouvelle inscription: Sophie Lemoine</li>
-              <li>Paiement reçu: 59€</li>
-              <li>Client en retard: Didier Renard</li>
+              <li>Paiement reçu de Jean D. (150€)</li>
+              <li>Nouveau message de Sarah L.</li>
+              <li>Séance terminée avec Marc A.</li>
             </ul>
           </div>
         </section>
