@@ -180,29 +180,25 @@ export default function Page() {
       <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-white/10 p-8 max-w-md w-full backdrop-blur-sm">
         {/* Logo / Header */}
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-br from-demos-red to-demos-red/90 rounded-full p-5 w-24 h-24 mx-auto mb-4 flex items-center justify-center shadow-xl shadow-demos-red/20 border border-white/10">
-            <Dumbbell className="text-white" size={40} />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-2">
-            Demos
+          <img src="/logo.png" className="h-16 w-auto mx-auto mb-4" alt="DEMOS" />
+          <h1 className="text-5xl sm:text-6xl font-extrabold bg-clip-text text-transparent mb-2 bg-gradient-to-r from-demos-red to-demos-red/90">
+            DEMOS
           </h1>
-          <p className="text-gray-400 text-sm">Application de coaching premium</p>
+          <p className="text-gray-400 text-sm max-w-xl mx-auto">Coaching premium personnalisé — programme, suivi et messagerie en temps réel.</p>
         </div>
 
         {mode === "select" && (
           <div className="space-y-4">
             <button
               onClick={() => setMode("coach")}
-              className="w-full bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl px-6 py-4 text-base font-medium hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-xl shadow-demos-red/30 flex items-center justify-center gap-3 active:scale-95 border border-white/10"
+              className="w-full bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl px-6 py-4 text-lg font-semibold hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-2xl shadow-demos-red/40 flex items-center justify-center active:scale-95 border border-demos-red/30"
             >
-              <Lock size={24} />
               Accès Coach
             </button>
             <button
               onClick={() => setMode("client")}
-              className="w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl px-6 py-4 text-base font-medium hover:from-gray-600 hover:to-gray-700 transition-all shadow-xl shadow-gray-900/50 flex items-center justify-center gap-3 active:scale-95 border border-white/10"
+              className="w-full bg-gradient-to-r from-demos-red to-demos-red/85 text-white rounded-xl px-6 py-4 text-lg font-semibold hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-2xl shadow-demos-red/30 flex items-center justify-center active:scale-95 border border-demos-red/30"
             >
-              <Lock size={24} />
               Accès Client
             </button>
           </div>
@@ -306,7 +302,7 @@ export default function Page() {
                     setIsSignUp(!isSignUp);
                     setError("");
                   }}
-                  className="flex-1 px-6 py-3 text-gray-300 hover:bg-gray-800/50 rounded-xl transition font-medium text-base border border-white/10 backdrop-blur-sm"
+                  className="flex-1 px-6 py-3 text-white bg-demos-red/10 hover:bg-demos-red/15 rounded-xl transition font-medium text-base border border-demos-red/40 backdrop-blur-sm"
                 >
                   {isSignUp ? "J'ai déjà un compte" : "Créer un compte"}
                 </button>
