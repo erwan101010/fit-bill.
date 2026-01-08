@@ -108,7 +108,7 @@ export default function ClientChatPage() {
           table: "messages",
           filter: `or(and(sender_id.eq.${userId},receiver_id.eq.${coachId}),and(sender_id.eq.${coachId},receiver_id.eq.${userId}))`,
         },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => {
             const exists = prev.some((m) => m.id === (payload.new as Message).id);
             if (exists) return prev;
