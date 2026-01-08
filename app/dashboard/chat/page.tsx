@@ -63,7 +63,7 @@ export default function ChatPage() {
       }
 
       if (clientsData && clientsData.length > 0) {
-        const clientsList: Client[] = clientsData.map((c) => ({
+        const clientsList: Client[] = clientsData.map((c: any) => ({
           id: c.id,
           name: c.full_name || "Client",
           email: c.email,
