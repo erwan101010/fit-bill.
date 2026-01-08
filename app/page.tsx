@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Dumbbell } from "lucide-react";
+import Image from "next/image";
+import { Lock } from "lucide-react";
 import { supabase } from "./utils/supabase";
 
 export default function Page() {
@@ -176,28 +177,28 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-white/10 p-8 max-w-md w-full backdrop-blur-sm">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
+      <div className="bg-gray-900/70 rounded-3xl shadow-2xl border border-white/10 p-8 max-w-md w-full backdrop-blur-sm">
         {/* Logo / Header */}
         <div className="text-center mb-8">
-          <img src="/logo.png" className="h-16 w-auto mx-auto mb-4" alt="DEMOS" />
-          <h1 className="text-5xl sm:text-6xl font-extrabold bg-clip-text text-transparent mb-2 bg-gradient-to-r from-demos-red to-demos-red/90">
+          <Image src="/logo.png" alt="DEMOS" width={160} height={64} className="mx-auto mb-4 h-16 w-auto" />
+          <h1 className="text-5xl sm:text-6xl font-extrabold bg-clip-text text-transparent mb-2 bg-gradient-to-r from-red-600 to-red-500">
             DEMOS
           </h1>
-          <p className="text-gray-400 text-sm max-w-xl mx-auto">Coaching premium personnalisé — programme, suivi et messagerie en temps réel.</p>
+          <p className="text-gray-300 text-sm max-w-xl mx-auto">Coaching premium personnalisé — programme, suivi et messagerie en temps réel.</p>
         </div>
 
         {mode === "select" && (
           <div className="space-y-4">
             <button
               onClick={() => setMode("coach")}
-              className="w-full bg-gradient-to-r from-demos-red to-demos-red/90 text-white rounded-xl px-6 py-4 text-lg font-semibold hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-2xl shadow-demos-red/40 flex items-center justify-center active:scale-95 border border-demos-red/30"
+              className="w-full bg-red-600 text-white rounded-xl px-6 py-4 text-lg font-semibold hover:bg-red-700 transition-all shadow-lg flex items-center justify-center active:scale-95"
             >
               Accès Coach
             </button>
             <button
               onClick={() => setMode("client")}
-              className="w-full bg-gradient-to-r from-demos-red to-demos-red/85 text-white rounded-xl px-6 py-4 text-lg font-semibold hover:from-demos-red/90 hover:to-demos-red/80 transition-all shadow-2xl shadow-demos-red/30 flex items-center justify-center active:scale-95 border border-demos-red/30"
+              className="w-full bg-red-600 text-white rounded-xl px-6 py-4 text-lg font-semibold hover:bg-red-700 transition-all shadow-lg flex items-center justify-center active:scale-95"
             >
               Accès Client
             </button>
