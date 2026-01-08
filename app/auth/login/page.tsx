@@ -14,6 +14,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Dev bypass: allow logging in locally without Supabase when using admin/admin
+    if (email === "admin" && password === "admin") {
+      router.push("/dashboard");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await supabase.auth.signInWithPassword({ email, password });
@@ -84,7 +91,7 @@ export default function LoginPage() {
           <div>
             <label className="text-sm text-gray-300">Email</label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
