@@ -126,8 +126,7 @@ export default function ClientSidebar() {
                   onClick={() => setIsMobileOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative group ${
                     isActive
-                      ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-xl shadow-red-500/30 border border-white/10"
-                        ? "bg-gradient-to-r from-demos-red to-demos-red/90 text-white shadow-xl shadow-demos-red/30 border border-white/10"
+                      ? "bg-gradient-to-r from-demos-red to-demos-red/90 text-white shadow-xl shadow-demos-red/30 border border-white/10"
                       : "text-gray-300 hover:bg-gray-800/50 hover:text-white border border-transparent hover:border-white/5"
                   }`}
                 >
