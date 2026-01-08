@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../utils/supabase";
 
 const NAV_ITEMS = [
   {
@@ -44,12 +43,16 @@ export default function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("demos-user-type");
-      localStorage.removeItem("demos-logged-in");
-      localStorage.removeItem("demos-user-id");
-      localStorage.removeItem("demos-user-name");
+    // Local-only logout for dev: clear storage and redirect
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("demos-user-type");
+        localStorage.removeItem("demos-logged-in");
+        localStorage.removeItem("demos-user-id");
+        localStorage.removeItem("demos-user-name");
+      }
+    } catch (e) {
+      // ignore
     }
     router.push("/");
   };
@@ -81,7 +84,7 @@ export default function Sidebar() {
             </div>
             <div className="flex items-center gap-2 mt-3 ml-11">
               <div className="flex items-center gap-2">
-                <span className="text-gray-300 text-sm font-medium">
+                <span className="text-white text-sm font-medium">
                   {typeof window !== "undefined" ? localStorage.getItem("demos-user-name") || "Coach" : "Coach"}
                 </span>
                 <div className="relative">
@@ -140,9 +143,9 @@ export default function Sidebar() {
           <div className="p-4 border-t border-white/10">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-gray-800/50 hover:text-white transition-all border border-transparent hover:border-white/5 group"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white hover:bg-gray-800/50 hover:text-white transition-all border border-transparent hover:border-white/5 group"
             >
-              <LogOut size={20} className="text-gray-400 group-hover:text-white transition-colors" />
+              <LogOut size={20} className="text-white transition-colors" />
               <span className="font-medium">Déconnexion</span>
             </button>
             
