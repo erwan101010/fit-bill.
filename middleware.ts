@@ -60,11 +60,11 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession();
 
   // Routes publiques
-  const publicRoutes = ['/'];
+  const publicRoutes = ['/', '/auth/login'];
   const isPublicRoute = publicRoutes.includes(req.nextUrl.pathname);
 
-  // Si pas de session et route protégée, rediriger vers login
-  if (!session && !isPublicRoute) {
+  // Si pas de session et route protégée, rediriger vers login (exclure explicitement la page de login)
+  if (!session && !isPublicRoute && req.nextUrl.pathname !== '/auth/login') {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
