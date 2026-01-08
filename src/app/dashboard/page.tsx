@@ -1,8 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { supabase } from "../../utils/supabase";
-import { useState } from "react";
-
 export default function CoachDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 to-black text-white">
