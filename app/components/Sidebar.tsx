@@ -59,18 +59,18 @@ export default function Sidebar() {
       {/* Mobile menu button */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-br from-gray-800 to-gray-900 text-white p-3 rounded-xl shadow-xl border border-white/10 backdrop-blur-sm"
+        className="lg:hidden fixed top-4 left-4 z-50 bg-black/20 text-white p-3 rounded-xl shadow-xl border border-white/8 backdrop-blur-md"
       >
         {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white z-40 transform transition-transform duration-300 ease-in-out shadow-2xl border-r border-white/10 ${
+        className={`fixed left-0 top-0 h-full w-64 text-white z-40 transform transition-transform duration-300 ease-in-out ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
-        <div className="flex flex-col h-full backdrop-blur-sm">
+        <div className="flex flex-col h-full glass-card p-4">
           {/* Logo */}
           <div className="p-6 border-b border-white/10">
             <div className="flex items-center gap-3 mb-2">
