@@ -10,10 +10,10 @@ export default function Home() {
         <p className="text-xl text-gray-400 font-light tracking-widest">COACHING PREMIUM & PERFORMANCE DE HAUT NIVEAU</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-10">
-          <Link href="/auth/login" className="bg-[#E21D2C] hover:bg-red-700 text-white font-black py-5 px-10 rounded-0 transform skew-x-[-10deg] transition-all text-xl uppercase">
+          <Link href="/auth/login" aria-label="Accès Coach" className="inline-block bg-[#E21D2C] hover:bg-red-700 text-white font-black py-5 px-10 rounded-xl transition-all text-xl uppercase text-center">
             Accès Coach
           </Link>
-          <Link href="/auth/login" className="border-2 border-white hover:bg-white hover:text-black text-white font-black py-5 px-10 rounded-0 transform skew-x-[-10deg] transition-all text-xl uppercase">
+          <Link href="/auth/login" aria-label="Accès Client" className="inline-block border-2 border-white hover:bg-white hover:text-black text-white font-black py-5 px-10 rounded-xl transition-all text-xl uppercase text-center">
             Accès Client
           </Link>
         </div>
