@@ -11,9 +11,12 @@ import {
   Command,
   User,
   X,
+  Settings,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Sidebar from "../components/Sidebar";
+import { ComplianceStatus } from "../components/ComplianceStatus";
 import { getTotalPaiements } from "../utils/facturationStorage";
 import { getOrCreateCoachCode } from "../utils/coachStorage";
 import { supabase } from "../utils/supabase";
@@ -170,6 +173,12 @@ export default function DashboardPage() {
       
       <main className="flex-1 lg:ml-64 p-8">
         <div className="max-w-6xl mx-auto space-y-8">
+          {/* Header avec badge de conformité */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+            <ComplianceStatus />
+          </div>
+
           {/* Barre de recherche flottante */}
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4">
             <button
