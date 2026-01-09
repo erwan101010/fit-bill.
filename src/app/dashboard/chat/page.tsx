@@ -1,3 +1,5 @@
+import { supabase } from '@/utils/supabase'
+
 export default function DashboardChatPage() {
   const messages = [
     { id: 1, text: "Salut Coach! Comment ça va?", time: "09:12" },
