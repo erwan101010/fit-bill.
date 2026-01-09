@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Send, Plus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import ClientSidebar from "../../components/ClientSidebar";
-import { supabase } from "../../utils/supabase";
+import { supabase } from "@/utils/supabase";
 
 interface Message {
   id: number;

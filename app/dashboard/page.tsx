@@ -19,7 +19,7 @@ import Sidebar from "../components/Sidebar";
 import { ComplianceStatus } from "../components/ComplianceStatus";
 import { getTotalPaiements } from "../utils/facturationStorage";
 import { getOrCreateCoachCode } from "../utils/coachStorage";
-import { supabase } from "../utils/supabase";
+import { supabase } from "@/utils/supabase";
 
 export default function DashboardPage() {
   const router = useRouter();

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Save, AlertCircle } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import { ComplianceBadge } from '../../components/ComplianceBadge';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 interface CoachProfile {
   id: string;

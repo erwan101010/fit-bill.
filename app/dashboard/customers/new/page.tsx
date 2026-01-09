@@ -5,7 +5,7 @@ import { Plus, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Sidebar from '../../components/Sidebar';
 import { CompanySearch } from '../../components/CompanySearch';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '@/utils/supabase';
 import { useRouter } from 'next/navigation';
 
 interface CompanyResult {

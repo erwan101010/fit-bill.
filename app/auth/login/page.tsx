@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { supabase } from "../../utils/supabase";
+import { supabase } from '@/utils/supabase';
 import { useEffect } from "react";
 
 export default function LoginPage() {

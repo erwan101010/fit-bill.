@@ -5,7 +5,7 @@ import { Plus, Users, Edit, Trash2, Eye, Search } from 'lucide-react';
 import Link from 'next/link';
 import Sidebar from '../../components/Sidebar';
 import { ComplianceBadge } from '../../components/ComplianceBadge';
-import { supabase } from '../../utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 interface Customer {
   id: string;

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../utils/supabase";
+import { supabase } from "@/utils/supabase";
 
 const NAV_ITEMS = [
   {

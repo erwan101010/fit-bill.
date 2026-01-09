@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle2, Settings } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '../utils/supabase';
+import { supabase } from '@/utils/supabase';
 
 export function ComplianceStatus() {
   const [coachSiren, setCoachSiren] = useState<string | null>(null);

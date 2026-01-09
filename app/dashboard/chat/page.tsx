@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Send, Plus } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
-import { supabase } from "../../utils/supabase";
+import { supabase } from "@/utils/supabase";
 
 interface Message {
   id: number;
